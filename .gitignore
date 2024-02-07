@@ -2,3 +2,4 @@ vendors.json
 *.bat
 *.db
 /test/
+UpdateDB.py
