@@ -1,0 +1,4 @@
+vendors.json
+*.bat
+*.db
+/test/
