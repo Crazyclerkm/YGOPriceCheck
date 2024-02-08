@@ -34,6 +34,27 @@ a {
     white-space: nowrap;
 }
 
+#options-content {
+    font-size: 20px; 
+    margin-left: 10px;
+}
+
+#options-header {
+    display: flex;
+    justify-content: space-between;    
+}
+
+#close-options-menu {
+    font-size: 36px;
+    line-height: 77px;
+    text-align: center;
+    margin-right: 20px;
+}
+
+#options-heading {
+    margin-left: 5px;
+}
+
 #close-changelog {
     position: absolute;
     top: 0;
@@ -45,45 +66,6 @@ a {
 #wishlist {
     width: 30%;
 }
-
-#search {
-    width: 40%;
-    background-color: white;
-    text-align: center;
-    box-sizing: border-box;
-    border: 2px solid #ccc;
-    border-radius: 7px;
-    font-size: 16px;
-    background-color: white;
-    -webkit-transition: 0.5s;
-    transition: 0.5s;
-    outline: none;
-    min-height: 40px;
-}
-
-#search-input {
-    background-color: white;
-    /*width: 33vw;
-    height: 2vw;*/
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    border: 2px solid #ccc;
-    border-radius: 7px;
-    font-size: 16px;
-    background-color: white;
-    padding-top: 2px;
-    -webkit-transition: 0.5s;
-    transition: 0.5s;
-    outline: none;
-    min-height: 40px;
-    border: none;
-    margin-left: 2%;
-}
-
-/*#search-input:focus {
-    border: 2px solid #555;
-}*/
 
 #product-container {
     overflow: auto;
@@ -108,6 +90,9 @@ a {
     border-radius: 5px;
     border-radius: .75rem;
     position: relative;
+    box-shadow: 7px 7px 4px -1px rgba(0,0,0,0.69);
+    -webkit-box-shadow: 7px 7px 4px -1px rgba(0,0,0,0.69);
+    -moz-box-shadow: 7px 7px 4px -1px rgba(0,0,0,0.69);
 }
 
 .product img {
@@ -117,6 +102,15 @@ a {
 
 .product-name {
     font-weight: bold;
+}
+
+.box {
+    position: relative;
+}
+
+.box:hover img {
+    height: 220px;
+    width: 146.3px;
 }
 
 #changelog {
@@ -152,11 +146,39 @@ a {
 }
 
 #search {
+    width: 40%;
+    background-color: white;
+    text-align: center;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 7px;
+    font-size: 16px;
+    background-color: white;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    outline: none;
+    min-height: 40px;
     position: relative;
     display: flex;
     justify-content: space-between;
+}
+
+#search-input {
+    background-color: white;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 7px;
+    font-size: 16px;
+    background-color: white;
+    padding-top: 2px;
     -webkit-transition: 0.5s;
     transition: 0.5s;
+    outline: none;
+    min-height: 40px;
+    border: none;
+    margin-left: 2%;
 }
 
 #search:focus-within {
@@ -193,42 +215,9 @@ a {
     width: 80%;
 }
 
-#options-content {
-    font-size: 20px; 
-    margin-left: 10px;
-}
-
-#options-header {
-    display: flex;
-    justify-content: space-between;    
-}
-
 input[type=checkbox] {
     width: 16px;
     height: 16px;
-}
-
-#close-options-menu {
-    font-size: 36px;
-    line-height: 77px;
-    text-align: center;
-    margin-right: 20px;
-}
-
-#options-heading {
-    margin-left: 5px;
-}
-
-.card-num, .card-name, #add-card {
-    background-color: white;
-    box-sizing: border-box;
-    border: 2px solid #ccc;
-    border-radius: 7px;
-    font-size: 16px;
-    background-color: white;
-    outline: none;
-    min-height: 40px;
-    border: none;
 }
 
 #home {
@@ -239,24 +228,23 @@ input[type=checkbox] {
     width: 5%;
     text-align: right;
     margin: 0;
+    padding-left: 20px;
+    padding-right: 20px;
     position: absolute;
     top: 0;
-    right: 5%;
-    font-size: 36px;
+    right: 2.5%;
+    font-size: 42px;
     z-index: 1;
 }
 
 .wishlist-button:hover {
     color: #555;
+    font-size: 46px;
     cursor: pointer;
 }
 
 .wishlist-button:active {
     text-shadow: 0.5px 1px 2px black;
-}
-
-.box {
-    position: relative;
 }
 
 #wishlist-notification {
@@ -276,8 +264,4 @@ input[type=checkbox] {
 
 #wishlist-notification p {
     vertical-align: middle;
-}
-
-#delete-button {
-    font-size: 16px;
 }
