@@ -45,22 +45,13 @@ export const debouncedfetchProducts = debounce(fetchProducts, 200);
 export function init() {
     getVersion();
     getVendors();
-    populateVendors();
 
     document.getElementById('open-options-menu').addEventListener('click', openOptionsMenu);
     document.getElementById('close-options-menu').addEventListener('click', closeOptionsMenu);
     document.getElementById('vendor-form').addEventListener('change', updateVendors);
 
-    if (!getCookie("Vendors")) {
-        let vendorStr = "";
-        for (let vendor in JSON.parse(localStorage.getItem("Vendors"))) {
-            vendorStr += vendor + '|';
-        }
-
-        setCookie("Vendors", vendorStr);
-
-        let vendors = document.querySelectorAll("input")
-        vendors.forEach((vendor) => vendor.checked = true);
+    if (!getCookie("Wishlist")) {
+        setCookie("Wishlist", '');
     }
 }
 
@@ -148,30 +139,13 @@ function getVendors() {
 
 function loadVendors(json) {
     localStorage.setItem("Vendors", JSON.stringify(json));
-}
-
-function updateVendors() {
-    let vendorStr = ""
-
-    let selectedVendors = document.querySelectorAll("input:checked")
-    selectedVendors.forEach((vendor) => vendorStr += ((vendor.value) + "|"))
-
-    setCookie("Vendors", vendorStr);
-}
-
-function setVendors() {
-    let vendorStr = getCookie("Vendors");
-
-    if (vendorStr) {
-        let vendors = vendorStr.split('|').filter(Boolean);
-
-        vendors.forEach((e) => document.querySelector('input[value="'+ e +'"]').checked = true);
-    }
+    populateVendors();
 }
 
 function populateVendors() {
     let vendorForm = document.getElementById("vendor-form");
     let i = 1
+
     for (let vendor in JSON.parse(localStorage.getItem("Vendors"))) {
         let htmlStr = `<input type="checkbox" class="vendor" id="vendor${i}" name="vendor${i}" value="${vendor}">
         <label for="vendor${i}">${vendor}</label><br>`;
@@ -180,6 +154,36 @@ function populateVendors() {
     }
 
     setVendors();
+}
+
+function setVendors() {
+    let vendorStr = getCookie("Vendors");
+
+    if (!vendorStr) {
+        let cookieStr = "";
+
+        for (let vendor in JSON.parse(localStorage.getItem("Vendors"))) {
+            cookieStr += vendor + '|';
+        }
+
+        setCookie("Vendors", cookieStr);
+
+        let vendorCheckboxes = document.querySelectorAll("input")
+        vendorCheckboxes.forEach((checkbox) => checkbox.checked = true);
+
+    } else {
+        let vendors = vendorStr.split('|').filter(Boolean);
+        vendors.forEach((vendor) => document.querySelector('input[value="'+ vendor +'"]').checked = true);
+    }
+}
+
+function updateVendors() {
+    let cookieStr = "";
+
+    let selectedVendors = document.querySelectorAll("input:checked")
+    selectedVendors.forEach((vendor) => cookieStr += ((vendor.value) + "|"))
+
+    setCookie("Vendors", cookieStr);
 }
 
 export function showProducts(products, keep, callback, char) {

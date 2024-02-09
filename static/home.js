@@ -32,10 +32,6 @@ if (!getCookie("Sort")) {
 } else {
     sort_select.value = getCookie("Sort");
 }
-
-if (!getCookie("Wishlist")) {
-    setCookie("Wishlist", '');
-}
  
 getProducts();
 
