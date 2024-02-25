@@ -1,6 +1,7 @@
 import { debouncedfetchProducts, base, init, setCookie, getCookie, showProducts} from "./common.js";
 
-let count=1;
+let count = 1;
+let lastScrollPosition = 0;
 const search_bar = document.getElementById('search-input');
 const productContainer = document.getElementById("product-container");
 const sort_select = document.getElementById('sort-select')
@@ -10,10 +11,15 @@ search_bar.addEventListener("input", function() {
     getProducts();
 });
 
-productContainer.addEventListener("scroll", (e) => {
-    if (productContainer.scrollHeight - productContainer.scrollTop == productContainer.clientHeight) {
-        addProducts();
-        count++;
+productContainer.addEventListener("scroll", function() {
+    if (productContainer.scrollTop > lastScrollPosition && (productContainer.scrollTop - lastScrollPosition) > 1) {
+        lastScrollPosition = productContainer.scrollTop;
+       
+        // May not be exactly equal on some screen sizes due to sub-pixel precision
+        if (productContainer.scrollHeight - productContainer.scrollTop <= (productContainer.clientHeight + 1)) {
+            addProducts();
+            count++;
+        }
     }
 });
 
@@ -43,6 +49,7 @@ function addProducts() {
 
 function resetProducts() {
     count = 1;
+    lastScrollPosition = 0;
     productContainer.scrollTo(0, 0);
     productContainer.innerHTML = "";
 }
