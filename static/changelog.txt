@@ -1,1 +1,3 @@
 - Added wishlist
+- Minor UI adjustments
+- Fixed infinite scrolling on different screen sizes
