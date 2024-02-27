@@ -1,4 +1,43 @@
-import { debouncedfetchProducts, base, init, setCookie, getCookie, showProducts} from "./common.js";
+import {base, init, setCookie, getCookie, showProducts} from "./common.js";
+
+// TODO: Adjust wishlist menu UI
+
+const debounce = (mainFunction, delay) => {
+    let timer;
+  
+    // Return a function that takes in arguments and runs mainFunction after the specified delay
+    return function (...args) {
+      clearTimeout(timer);
+  
+      timer = setTimeout(() => {
+        mainFunction(...args);
+      }, delay);
+    };
+  };
+
+function fetchProducts(uri, callback, ...args) {
+    const fetchPromise = fetch(uri, {
+        headers: {
+            "Accept": "application/json",
+            Cookie: document.cookie,
+        },
+        }); 
+
+    const streamPromise = fetchPromise.then((response) => {
+        const contentLength = response.headers.get("Content-Length");
+        if (contentLength === '0') {
+            return null;
+        } else {
+            return response.json();
+        }
+    }).then((data) => {
+        if (data != null) {
+            callback(data, ...args);
+        }
+    });
+}
+
+const debouncedfetchProducts = debounce(fetchProducts, 200);
 
 let count = 1;
 let lastScrollPosition = 0;
@@ -30,6 +69,7 @@ sort_select.addEventListener("change", function() {
 });
 
 document.getElementById('vendor-form').addEventListener('change', getProducts);
+document.getElementById('close-wishlist-menu').addEventListener('click', closeWishlistMenu);
 
 init();
 
@@ -38,13 +78,25 @@ if (!getCookie("Sort")) {
 } else {
     sort_select.value = getCookie("Sort");
 }
+
+if (!getCookie("Wishlist")) {
+    setCookie("Wishlist", '');
+}
+
+if (!localStorage.getItem("Wishlist")) {
+    localStorage.setItem("Wishlist", JSON.stringify(
+        {
+                "Wishlist": []
+        }
+    ));
+}
  
 getProducts();
 
 function addProducts() {
     const search = document.getElementById('search-input').value;
     const uri = buildURI(search, count*12);
-    debouncedfetchProducts(uri, showProducts, true, addToWishlist, '+');
+    debouncedfetchProducts(uri, showProducts, true, openWishlistMenu, '+');
 }
 
 function resetProducts() {
@@ -57,7 +109,7 @@ function resetProducts() {
 function getProducts() {
     const search = document.getElementById('search-input').value;
     const uri = buildURI(search, 0);
-    debouncedfetchProducts(uri, showProducts, false, addToWishlist, '+');
+    debouncedfetchProducts(uri, showProducts, false, openWishlistMenu, '+');
 }
 
 function buildURI(search, index) {
@@ -72,18 +124,121 @@ function buildURI(search, index) {
     return uri;
 }
 
-function addToWishlist(variant_id, vendor) {
-    let wishlist = getCookie("Wishlist");
-    let wishlistStr = String(variant_id) + ':' + vendor + '|';
-    if(!wishlist.includes(wishlistStr)) {
-        setCookie("Wishlist", wishlist + wishlistStr);
+function addToWishlist(variant_id, vendor, wishlistName) {
+    let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
+    let product = {"variant_id": variant_id, "vendor": vendor};
+
+    if(!wishlists[wishlistName].some(element => element.variant_id == variant_id && element.vendor == vendor)) {
+        wishlists[wishlistName].push(product);
+        localStorage.setItem("Wishlist", JSON.stringify(wishlists));
         showWishlistNotification(true);
     } else {
         showWishlistNotification(false);
     }
 }
 
-// TODO: Fix wishlist notification
+function populateWishlists() {
+    const wishlistContent = document.getElementById('wishlist-menu-content');
+    wishlistContent.innerHTML = "";
+
+    const wishlists = JSON.parse(localStorage.getItem("Wishlist"));
+    
+    let initial = true;
+
+    for(let wishlist in wishlists) {
+        const wishlistRadio = document.createElement('input');
+        wishlistRadio.type = "radio";
+        wishlistRadio.id = wishlist + "-radio";
+        wishlistRadio.name = "wishlist-radio"
+
+        const wishlistLabel = document.createElement('label');
+        wishlistLabel.innerText = wishlist;
+        wishlistLabel.htmlFor = wishlistRadio.id;
+
+        wishlistContent.appendChild(wishlistRadio);
+        wishlistContent.appendChild(wishlistLabel);
+        wishlistContent.appendChild(document.createElement('br'));
+
+        if(initial) {
+            wishlistRadio.checked = true;
+            initial = false;
+        }
+    }
+}
+
+function addNewWishlist(wishlistName) {
+    let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
+
+    if(!wishlistName || wishlists[wishlistName]) return false;
+
+    wishlists[wishlistName] = [];
+    localStorage.setItem("Wishlist", JSON.stringify(wishlists));
+
+    return true;
+}
+
+function openWishlistMenu(variant_id, vendor) {
+    const wishlistMenu = document.getElementById('wishlist-menu');
+    const wishlistHeader = document.getElementById('wishlist-menu-header');
+    const wishlistFooter = document.getElementById('wishlist-menu-footer');
+
+    wishlistMenu.style.display = "inline";
+
+    wishlistHeader.style.display = "flex";
+    wishlistHeader.style.justifyContent = "space-between";
+
+    wishlistFooter.style.display = "flex";
+    wishlistFooter.style.justifyContent = "space-around";
+
+    populateWishlists();
+
+    document.getElementById('new-wishlist').addEventListener('click', function() {
+        const wishlistForm = document.getElementById("new-wishlist-form");
+        wishlistForm.style.display = "flex";
+
+        const submitButtom = document.getElementById("new-wishlist-submit");
+
+        submitButtom.addEventListener('click', function eventHandler(){
+            const wishlistInput = document.getElementById("new-wishlist-input");
+
+            if(addNewWishlist(wishlistInput.value)) {
+                wishlistInput.style.borderColor = "black";
+                wishlistInput.value = "";
+                wishlistForm.style.display = "none";
+                submitButtom.removeEventListener('click', eventHandler);
+                populateWishlists();
+            } else {
+                wishlistInput.style.borderColor = "red";
+            }
+        });
+    });
+
+    document.getElementById('add-wishlist').addEventListener('click', function eventHandler() {
+        // Match last occurence of "-radio" in the radio button id
+        const regex = /(-radio)(?!-radio)/;
+        addToWishlist(variant_id, vendor, document.querySelector('input[name="wishlist-radio"]:checked').id.replace(regex,""));
+        this.removeEventListener('click', eventHandler);
+        closeWishlistMenu();
+    });
+
+    // Allow escape key to close the wishlist menu
+    window.onkeydown = function(event) {
+        if (event.which == 27) closeWishlistMenu();
+        window.onkeydown = null;
+    }
+}
+
+function closeWishlistMenu() {
+    const wishlistMenu = document.getElementById('wishlist-menu');
+    const wishlistForm = document.getElementById("new-wishlist-form");
+    const wishlistInput = document.getElementById("new-wishlist-input");
+
+    wishlistInput.style.value = "";
+    wishlistInput.style.borderColor = "black";
+    wishlistForm.style.display = "none";
+    wishlistMenu.style.display = "none";
+}
+
 function showWishlistNotification(added) {
     const wishlistNotification = document.getElementById('wishlist-notification');
     

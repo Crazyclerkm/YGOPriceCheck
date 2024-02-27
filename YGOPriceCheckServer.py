@@ -108,29 +108,24 @@ def getProducts(name=None, index=-1, count=-1):
         hed = '<h1>Something is broken.</h1>'
         return hed + error_text
 
-@app.route('/cardlist')
+@app.route('/cardlist', methods=['POST'])
 def getWishlist():
-    if 'Wishlist' in request.cookies:
-        wishlist_string = request.cookies.get('Wishlist')
-        cards = list(filter(None, wishlist_string.split('|')))
+    wishlist = request.json
+    products = []
 
-        vendors = None;
-        if 'Vendors' in request.cookies:
-            vendor_string = request.cookies.get('Vendors')
-            vendors = list(filter(None, vendor_string.split('|')))
+    vendors = None;
+    if 'Vendors' in request.cookies:
+        vendor_string = request.cookies.get('Vendors')
+        vendors = list(filter(None, vendor_string.split('|')))
 
-        products = []
-        for card in cards:
-            variant_id, vendor = card.split(':')
+    for item in wishlist:
+        if vendors != None and item["vendor"].replace("\\'", "'") in vendors:
+            product = db.session.get(Product, (item["variant_id"], item["vendor"].replace("\\'", "'")))
 
-            if vendors != None and vendor in vendors:
-                product = db.session.get(Product, (variant_id, vendor))
-                
-                if product is not None:
-                    products.append(product)
+            if product is not None:
+                products.append(product)
 
-        return Response(json.dumps([product.serialized for product in products]), mimetype='application/json')
-       
+    return Response(json.dumps([product.serialized for product in products]), mimetype='application/json')      
 
 if __name__ == "__main__":
    app.run(debug=True, host="0.0.0.0")

@@ -1,46 +1,6 @@
-// TODO: Add select/deselect all buttons on options menu
-// TODO: Ensure infinite scroll works on all screen sizes
-
-export const base = "http://192.168.1.71:5000/";
+export const base = "http://192.168.1.76:5000/";
 
 const productContainer = document.getElementById("product-container");
-
-const debounce = (mainFunction, delay) => {
-    let timer;
-  
-    // Return a function that takes in arguments and runs mainFunction after the specified delay
-    return function (...args) {
-      clearTimeout(timer);
-  
-      timer = setTimeout(() => {
-        mainFunction(...args);
-      }, delay);
-    };
-  };
-
-function fetchProducts(uri, callback, keep, func, char) {
-    const fetchPromise = fetch(uri, {
-        headers: {
-            "Accept": "application/json",
-            Cookie: document.cookie,
-        },
-        }); 
-
-    const streamPromise = fetchPromise.then((response) => {
-        const contentLength = response.headers.get("Content-Length");
-        if (contentLength === '0') {
-            return null;
-        } else {
-            return response.json();
-        }
-    }).then((data) => {
-        if (data != null) {
-            callback(data, keep, func, char);
-        }
-    });
-}
-
-export const debouncedfetchProducts = debounce(fetchProducts, 200);
 
 export function init() {
     getVersion();
@@ -186,19 +146,17 @@ function updateVendors() {
     setCookie("Vendors", cookieStr);
 }
 
-export function showProducts(products, keep, callback, char) {
-    if(!keep) {
-        productContainer.innerHTML = "";
-    }
+export function showProducts(products, keep, callback, char, container, wishlist) {
+    if(!container) container = productContainer;
+
+    if(!keep) container.innerHTML = "";
 
     const showProduct = (product) => {
         let img_src = "";
         let vendors = JSON.parse(localStorage.getItem("Vendors"));
         let vendorString = vendors[product.vendor];
         
-        if (product.img_src != "none") {
-            img_src = product.img_src;
-        }
+        if (product.img_src != "none") img_src = product.img_src;
             
         var productBox = document.createElement('div');
         var wishlistButton = document.createElement('div');
@@ -224,12 +182,13 @@ export function showProducts(products, keep, callback, char) {
         </a>
         `;
 
-        productContainer.appendChild(productBox);
+        container.appendChild(productBox);
         productBox.appendChild(wishlistButton);
 
-        wishlistButton.addEventListener('click', function() {
-            callback(product.variant_id, product.vendor.replaceAll("'", "\\'"));
+        wishlistButton.addEventListener('click', function(e) {
+            callback(product.variant_id, product.vendor.replaceAll("'", "\\'"), wishlist, e);
         });
     }
+
     products.forEach(showProduct);
 }
