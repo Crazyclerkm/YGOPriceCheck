@@ -45,10 +45,13 @@ a {
 }
 
 #close-options-menu {
-    font-size: 36px;
-    line-height: 77px;
-    text-align: center;
+    align-self: center;
+    height: 25px;
     margin-right: 20px;
+}
+
+#close-options-menu:hover {
+    cursor: pointer;
 }
 
 #options-heading {
@@ -56,11 +59,12 @@ a {
 }
 
 #close-changelog {
-    position: absolute;
-    top: 0;
-    right: 25px;
-    font-size: 36px;
     margin-left: 50px;
+    width: 25px;
+}
+
+#close-changelog:hover {
+    cursor: pointer;
 }
 
 #wishlist {
@@ -95,7 +99,7 @@ a {
     -moz-box-shadow: 7px 7px 4px -1px rgba(0,0,0,0.69);
 }
 
-.product img {
+.product .product-image {
     height: 200px;
     width: 133px;
 }
@@ -108,7 +112,7 @@ a {
     position: relative;
 }
 
-.box:hover img {
+.box:hover .product-image {
     height: 220px;
     width: 146.3px;
 }
@@ -127,22 +131,23 @@ a {
     overflow: hidden;
 }
 
-#changelog-content {
+#changelog > * {
     background-color: #fefefe;
-    margin: 4% auto;
-    padding: 30px;
-    margin-right: 3.8%;
-    border: 1px solid #888;
+    margin: 0 auto 0 auto;
     width: 90%;
-    height: 77.5%;
+    min-width: 400px;
+    padding: 10px;
 }
 
-#close-changelog {
-    position: absolute;
-    top: 8%;
-    right: 5%;
-    font-size: 36px;
-    margin-left: 50px;
+#changelog-header {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4%;
+    background-color: #fefefe;
+}
+
+#changelog-content {
+    height: 70%;
 }
 
 #search {
@@ -225,13 +230,12 @@ input[type=checkbox] {
 }
 
 .wishlist-button {
-    width: 5%;
+    width: 25px;
     text-align: right;
     margin: 0;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 15px;
     position: absolute;
-    top: 0;
+    top: 2.5%;
     right: 2.5%;
     font-size: 42px;
     z-index: 1;
@@ -240,6 +244,9 @@ input[type=checkbox] {
 .wishlist-button:hover {
     color: #555;
     font-size: 46px;
+    width: 30px;
+    right: 2%;
+    top: 2%;
     cursor: pointer;
 }
 
@@ -259,10 +266,11 @@ input[type=checkbox] {
     transition: 0.3s;
     white-space: nowrap;
     text-align: center;
-    
+    overflow: hidden;
 }
 
 #wishlist-notification p {
+    align-self: center;
     vertical-align: middle;
 }
 
@@ -284,13 +292,25 @@ input[type=checkbox] {
     background-color: #fefefe;
     margin: 0 auto 0 auto;
     width: 30%;
+    min-width: 400px;
 }
+
+@media only screen and (max-width: 768px) {
+    #wishlist-menu > * {
+        width: 80%;
+        min-width: 80%;
+    }
+  }
 
 #wishlist-menu-header {
     display: flex;
     justify-content: space-around;
     margin-top: 8%;
     background-color: #c0b9b9;
+}
+
+#wishlist-menu-content {
+    padding: 10px 0;
 }
 
 #wishlist-menu-footer {
@@ -303,20 +323,29 @@ input[type=checkbox] {
 }
 
 #close-wishlist-menu, .wishlist-minimise {
+    align-self: center;
     margin: 10px;
-    font-size: 36px;
+}
+
+#close-wishlist-menu:hover {
+    cursor: pointer;
 }
 
 #new-wishlist-form {
     display: none;
+    padding-bottom: 10px;
 }
 
-#new-wishlist-form p {
-    
+#new-wishlist-input {
+    margin-left: 8px;
+    font-size: 20px;
+}
+
+#new-wishlist-submit {
     margin: 0;
     cursor: pointer;
-    font-size: 22px;
-    font-weight: 1000;
+    width: 22px;
+    margin-left: 3px;
 }
 
 .wishlist-container {
@@ -346,4 +375,20 @@ input[type=checkbox] {
 
 .wishlist-header-button:hover {
     cursor: pointer;
+}
+
+.wishlist-menu-footer-button {
+    background-color: #9c9a9a;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.wishlist-menu-footer-button:hover {
+    cursor: pointer;
+    box-shadow: 5px 3px 13px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
 }

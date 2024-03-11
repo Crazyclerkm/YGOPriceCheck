@@ -75,6 +75,7 @@ function closeChangelog() {
 function openOptionsMenu() {
     const optionsMenu = document.getElementById('options-menu');
     optionsMenu.style.borderLeft = "1px solid #353535";
+    // TODO: Add event listener to still dynamically change size
     if (window.innerWidth > 768) {
         optionsMenu.style.width = "30%";
     } else {
@@ -159,17 +160,17 @@ export function showProducts(products, keep, callback, char, container, wishlist
         if (product.img_src != "none") img_src = product.img_src;
             
         var productBox = document.createElement('div');
-        var wishlistButton = document.createElement('div');
+        var wishlistButton = document.createElement('img');
 
         productBox.className = "box";
         wishlistButton.className = "wishlist-button";
         
-        wishlistButton.innerText = char;
+        wishlistButton.src = "static/" + char + ".svg";
         
         productBox.innerHTML += `
-        <a href="${vendorString + '/products/' + product.handle}" target="_blank">
+        <a href="${vendorString + 'products/' + product.handle}" target="_blank">
             <div class="product">
-                <img src="${img_src}"/>
+                <img class="product-image" src="${img_src}"/>
                 <div class="product-text">
                     <div class="product-name">${product.name}</div>
                     <div class="product-description">
@@ -185,8 +186,8 @@ export function showProducts(products, keep, callback, char, container, wishlist
         container.appendChild(productBox);
         productBox.appendChild(wishlistButton);
 
-        wishlistButton.addEventListener('click', function(e) {
-            callback(product.variant_id, product.vendor.replaceAll("'", "\\'"), wishlist, e);
+        wishlistButton.addEventListener('click', function(event) {
+            callback(product.variant_id, product.vendor.replaceAll("'", "\\'"), wishlist, event);
         });
     }
 
