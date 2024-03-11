@@ -104,7 +104,8 @@ function removeFromWishlist(variant_id, vendor, wishlistName, event) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
     let wishlistItem = wishlists[wishlistName].find(element => element.variant_id == variant_id && element.vendor == vendor);
 
-    wishlists[wishlistName].pop(wishlistItem);
+    const index = wishlists[wishlistName].indexOf(wishlistItem);
+    wishlists[wishlistName].splice(index, 1);
 
     localStorage.setItem("Wishlist", JSON.stringify(wishlists));
     event.target.parentElement.remove();
