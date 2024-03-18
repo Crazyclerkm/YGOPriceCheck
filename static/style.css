@@ -261,7 +261,7 @@ input[type=checkbox] {
     z-index: 3;
     bottom: 2vw;
     background-color: green;
-    right: 2vw;
+    right: 0vw;
     overflow-x: hidden; 
     transition: 0.3s;
     white-space: nowrap;
@@ -295,39 +295,70 @@ input[type=checkbox] {
     min-width: 400px;
 }
 
+#delete-confirmation {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    overflow: auto;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+    overflow: hidden;
+}
+
+#delete-confirmation > * {
+    background-color: #fefefe;
+    margin: 0 auto 0 auto;
+    width: 30%;
+    min-width: 400px;
+}
+
 @media only screen and (max-width: 768px) {
-    #wishlist-menu > * {
+    #wishlist-menu > *{
         width: 80%;
         min-width: 80%;
     }
+
+    #changelog > *, #delete-confirmation > *  {
+        width: 90%;
+        min-width: 90%;
+    }
+
+    #search {
+        width: 95%;
+    }
+
   }
 
-#wishlist-menu-header {
+#wishlist-menu-header, #delete-confirmation-header {
     display: flex;
     justify-content: space-around;
     margin-top: 8%;
     background-color: #c0b9b9;
 }
 
-#wishlist-menu-content {
+#wishlist-menu-content, #delete-confirmation-content {
     padding: 10px 0;
 }
 
-#wishlist-menu-footer {
+#wishlist-menu-footer, #delete-confirmation-footer {
     padding-bottom: 10px;
 }
 
-#wishlist-menu-title {
+#wishlist-menu-title, #delete-confirmation-title {
     margin: 10px;
     align-self: center;
 }
 
-#close-wishlist-menu, .wishlist-minimise {
+#close-wishlist-menu, .wishlist-minimise, #close-delete-confirmation {
     align-self: center;
     margin: 10px;
 }
 
-#close-wishlist-menu:hover {
+#close-wishlist-menu:hover, #close-delete-confirmation:hover {
     cursor: pointer;
 }
 
@@ -377,7 +408,7 @@ input[type=checkbox] {
     cursor: pointer;
 }
 
-.wishlist-menu-footer-button {
+.wishlist-menu-footer-button, .delete-confirmation-footer-button {
     background-color: #9c9a9a;
     border: none;
     color: white;
@@ -388,7 +419,15 @@ input[type=checkbox] {
     font-size: 16px;
 }
 
-.wishlist-menu-footer-button:hover {
+.wishlist-menu-footer-button:hover, .delete-confirmation-footer-button:hover {
     cursor: pointer;
     box-shadow: 5px 3px 13px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+#delete-wishlist {
+    background-color: #d32e2e;
+}
+
+#delete-confirmation-content {
+    text-align: center;
 }

@@ -1,6 +1,8 @@
 import { base, init, showProducts} from './common.js';
 
 document.getElementById('vendor-form').addEventListener('change', loadWishlists);
+document.getElementById("close-delete-confirmation").addEventListener('click', closeDeleteConfirmationPopup);
+document.getElementById("cancel-delete-wishlist").addEventListener('click', closeDeleteConfirmationPopup);
 
 init();
 loadWishlists();
@@ -75,8 +77,7 @@ function loadWishlists()  {
         }
 
         deleteButton.onclick = function() {
-            container.remove();
-            deleteWishlist(wishlist);
+            openDeleteConfirmationPopup(container, wishlist);
         }
 
         header.appendChild(title);
@@ -93,7 +94,37 @@ function loadWishlists()  {
     }
 }
 
-// TODO: Add confirmation popup
+function openDeleteConfirmationPopup(wishlistContainer, wishlistName) {
+    const deleteConfirmationPopup = document.getElementById("delete-confirmation");
+    const deleteConfirmationPopupHeader = document.getElementById('delete-confirmation-header'); 
+    const deleteConfirmationPopupContent = document.getElementById("delete-confirmation-content");
+    const deleteConfirmationPopupFooter = document.getElementById('delete-confirmation-footer');
+
+    deleteConfirmationPopupContent.innerText = "Are you sure you want to delete the wishlist \"" + wishlistName + "\"?";
+
+    deleteConfirmationPopup.style.display = "inline";
+
+    deleteConfirmationPopupHeader.style.display = "flex";
+    deleteConfirmationPopupHeader.style.justifyContent = "space-between";
+
+    deleteConfirmationPopupFooter.style.display = "flex";
+    deleteConfirmationPopupFooter.style.justifyContent = "space-around";
+
+    const deleteWishlistButton = document.getElementById("delete-wishlist");
+
+    deleteWishlistButton.addEventListener('click', function eventHandler() {
+        wishlistContainer.remove();
+        deleteWishlist(wishlistName);
+        deleteWishlistButton.removeEventListener('click', eventHandler);
+        closeDeleteConfirmationPopup();
+    });
+}
+
+function closeDeleteConfirmationPopup() {
+    const deleteConfirmationPopup = document.getElementById("delete-confirmation");
+    deleteConfirmationPopup.style.display = "none";
+}
+
 function deleteWishlist(wishlistName) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
     delete wishlists[wishlistName];

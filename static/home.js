@@ -243,6 +243,7 @@ function showWishlistNotification(added) {
     const wishlistNotification = document.getElementById('wishlist-notification');
     
     wishlistNotification.style.width = "15%";
+    wishlistNotification.style.minWidth = "150px";
 
     if(added) {
         wishlistNotification.style.backgroundColor = "green";
@@ -254,6 +255,7 @@ function showWishlistNotification(added) {
 
     function removeNotification() {
         wishlistNotification.style.width = "0";
+        wishlistNotification.style.minWidth = "0";
     }
 
     setTimeout(removeNotification, 2000);
