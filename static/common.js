@@ -10,8 +10,31 @@ export function init() {
     document.getElementById('close-options-menu').addEventListener('click', closeOptionsMenu);
     document.getElementById('vendor-form').addEventListener('change', updateVendors);
 
-    if (!getCookie("Wishlist")) {
-        setCookie("Wishlist", '');
+    if (!localStorage.getItem("Wishlist")) {
+        localStorage.setItem("Wishlist", JSON.stringify(
+            [{"name":"wishlist","items":[]}]
+        ));
+    } else {
+        const wishlists = JSON.parse(localStorage.getItem("Wishlist"));
+
+        // Check if using old wishlist format, if so, convert it.
+        if(!Array.isArray(wishlists)) {
+            let updatedWishlists = [];
+            for(const wishlist in wishlists) {
+                let newWishlist = {};
+                newWishlist["name"] = wishlist;
+                let items = [];
+                for (const itemName in wishlists[wishlist]) {
+                    const item = wishlists[wishlist][itemName];
+                    let newItem = {"variant_id": item["variant_id"], "vendor": item["vendor"]};
+                    items.push(newItem);
+                }
+                newWishlist["items"] = items;
+                updatedWishlists.push(newWishlist);
+            }
+
+            localStorage.setItem("Wishlist", JSON.stringify(updatedWishlists));
+        }
     }
 }
 

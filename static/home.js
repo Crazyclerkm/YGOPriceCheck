@@ -1,7 +1,5 @@
 import {base, init, setCookie, getCookie, showProducts} from "./common.js";
 
-// TODO: Adjust wishlist menu UI
-
 const debounce = (mainFunction, delay) => {
     let timer;
   
@@ -79,17 +77,7 @@ if (!getCookie("Sort")) {
     sort_select.value = getCookie("Sort");
 }
 
-if (!getCookie("Wishlist")) {
-    setCookie("Wishlist", '');
-}
 
-if (!localStorage.getItem("Wishlist")) {
-    localStorage.setItem("Wishlist", JSON.stringify(
-        {
-                "Wishlist": []
-        }
-    ));
-}
  
 getProducts();
 
@@ -126,10 +114,11 @@ function buildURI(search, index) {
 
 function addToWishlist(variant_id, vendor, wishlistName) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
-    let product = {"variant_id": variant_id, "vendor": vendor};
+    const product = {"variant_id": variant_id, "vendor": vendor};
+    let wishlist = wishlists.find(element => element["name"] == wishlistName);
 
-    if(!wishlists[wishlistName].some(element => element.variant_id == variant_id && element.vendor == vendor)) {
-        wishlists[wishlistName].push(product);
+    if(!wishlist["items"].some(product => product.variant_id == variant_id && product.vendor == vendor)) {
+        wishlist["items"].push(product);
         localStorage.setItem("Wishlist", JSON.stringify(wishlists));
         showWishlistNotification(true);
     } else {
@@ -145,14 +134,14 @@ function populateWishlists() {
     
     let initial = true;
 
-    for(let wishlist in wishlists) {
+    for(let i in wishlists) {
         const wishlistRadio = document.createElement('input');
         wishlistRadio.type = "radio";
-        wishlistRadio.id = wishlist + "-radio";
+        wishlistRadio.id = wishlists[i]["name"] + "-radio";
         wishlistRadio.name = "wishlist-radio"
 
         const wishlistLabel = document.createElement('label');
-        wishlistLabel.innerText = wishlist;
+        wishlistLabel.innerText = wishlists[i]["name"];
         wishlistLabel.htmlFor = wishlistRadio.id;
 
         wishlistContent.appendChild(wishlistRadio);
@@ -169,9 +158,9 @@ function populateWishlists() {
 function addNewWishlist(wishlistName) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
 
-    if(!wishlistName || wishlists[wishlistName]) return false;
+    if(!wishlistName || wishlists.some(element => element["name"] == wishlistName )) return false;
 
-    wishlists[wishlistName] = [];
+    wishlists.push({"name":wishlistName,"items":[]});
     localStorage.setItem("Wishlist", JSON.stringify(wishlists));
 
     return true;

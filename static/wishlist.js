@@ -1,8 +1,6 @@
 import { base, init, showProducts} from './common.js';
 
 document.getElementById('vendor-form').addEventListener('change', loadWishlists);
-document.getElementById("close-delete-confirmation").addEventListener('click', closeDeleteConfirmationPopup);
-document.getElementById("cancel-delete-wishlist").addEventListener('click', closeDeleteConfirmationPopup);
 
 init();
 loadWishlists();
@@ -38,7 +36,7 @@ function loadWishlists()  {
     const wishlistContent = document.getElementById("wishlist-content");
     wishlistContent.innerHTML = "";
 
-    for(let wishlist in wishlists) {
+    for(let i in wishlists) {
         const container = document.createElement('div');
         const header = document.createElement('div');
         const products = document.createElement('div');
@@ -48,7 +46,7 @@ function loadWishlists()  {
         products.className = "wishlist-products";
 
         const title = document.createElement('h2');
-        title.textContent = wishlist;
+        title.textContent = wishlists[i]["name"];
 
         const minimiseButton = document.createElement('img');
         const deleteButton = document.createElement('img');
@@ -77,8 +75,16 @@ function loadWishlists()  {
         }
 
         deleteButton.onclick = function() {
-            openDeleteConfirmationPopup(container, wishlist);
+            openDeleteConfirmationPopup(container, wishlists[i]["name"]);
         }
+
+        editButton.onclick = function() {
+            editTitle(title)
+        };
+
+        title.onclick = function() {
+            editTitle(title)
+        };
 
         header.appendChild(title);
         header.appendChild(editButton);
@@ -87,11 +93,32 @@ function loadWishlists()  {
 
         container.appendChild(header);
 
-        getWishlist(JSON.stringify(wishlists[wishlist]), showProducts, true, removeFromWishlist, '-', products, wishlist);
+        getWishlist(JSON.stringify(wishlists[i]["items"]), showProducts, true, removeFromWishlist, '-', products, wishlists[i]["name"]);
        
         container.append(products);
         wishlistContent.appendChild(container);
     }
+}
+
+function editTitle(title) {
+    let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
+    const initialTitle = title.innerText;
+    title.contentEditable = true;
+    title.focus();
+
+    title.addEventListener('blur', function eventHandler(){
+        title.contentEditable = false;
+        let newTitle = title.innerText.trim().replace(/[\r\n\v]+/g, '');
+        title.innerText = newTitle;
+
+        if (newTitle !== initialTitle) {
+            let wishlist = wishlists.find(element => element["name"] == initialTitle);
+            wishlist["name"] = newTitle;
+            localStorage.setItem("Wishlist", JSON.stringify(wishlists));
+        }
+        
+        title.removeEventListener('blur', eventHandler);
+    });
 }
 
 function openDeleteConfirmationPopup(wishlistContainer, wishlistName) {
@@ -112,31 +139,50 @@ function openDeleteConfirmationPopup(wishlistContainer, wishlistName) {
 
     const deleteWishlistButton = document.getElementById("delete-wishlist");
 
-    deleteWishlistButton.addEventListener('click', function eventHandler() {
+    function deleteEventHandler() {
         wishlistContainer.remove();
         deleteWishlist(wishlistName);
-        deleteWishlistButton.removeEventListener('click', eventHandler);
-        closeDeleteConfirmationPopup();
+        closeDeleteConfirmationPopup(deleteEventHandler);
+    }
+
+    deleteWishlistButton.addEventListener('click', deleteEventHandler);
+
+    const closePopupButton = document.getElementById("close-delete-confirmation");
+    const cancelButton = document.getElementById("cancel-delete-wishlist");
+
+    closePopupButton.addEventListener('click', function eventHandler() {
+        closeDeleteConfirmationPopup(deleteEventHandler);
+        closePopupButton.removeEventListener('click', eventHandler);
+    });
+
+    cancelButton.addEventListener('click', function eventHandler() {
+        closeDeleteConfirmationPopup(deleteEventHandler);
+        cancelButton.removeEventListener('click', eventHandler);
     });
 }
 
-function closeDeleteConfirmationPopup() {
+function closeDeleteConfirmationPopup(deleteEventListener) {
     const deleteConfirmationPopup = document.getElementById("delete-confirmation");
+    document.getElementById("delete-wishlist").removeEventListener('click', deleteEventListener);
     deleteConfirmationPopup.style.display = "none";
 }
 
 function deleteWishlist(wishlistName) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
-    delete wishlists[wishlistName];
+    const wishlist = wishlists.find(element => element["name"] == wishlistName);
+
+    wishlists.splice(wishlists.indexOf(wishlist), 1);
+
     localStorage.setItem("Wishlist", JSON.stringify(wishlists));
 }
 
 function removeFromWishlist(variant_id, vendor, wishlistName, event) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
-    let wishlistItem = wishlists[wishlistName].find(element => element.variant_id == variant_id && element.vendor == vendor);
+    let wishlist = wishlists.find(element => element["name"] == wishlistName);
+    const wishlistItem = wishlist["items"].find(element => element.variant_id == variant_id && element.vendor == vendor);
 
-    const index = wishlists[wishlistName].indexOf(wishlistItem);
-    wishlists[wishlistName].splice(index, 1);
+    const index = wishlist["items"].indexOf(wishlistItem);
+    wishlist["items"].splice(index, 1);
 
     localStorage.setItem("Wishlist", JSON.stringify(wishlists));
     event.target.parentElement.remove();
