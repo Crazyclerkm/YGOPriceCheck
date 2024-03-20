@@ -1,4 +1,4 @@
-import {base, init, setCookie, getCookie, showProducts} from "./common.js";
+import {base, init, setCookie, getCookie, showProducts, showLoading, hideLoading} from "./common.js";
 
 const debounce = (mainFunction, delay) => {
     let timer;
@@ -13,7 +13,21 @@ const debounce = (mainFunction, delay) => {
     };
   };
 
+function loadOnScrollBottom() {
+    if (productContainer.scrollTop > lastScrollPosition && (productContainer.scrollTop - lastScrollPosition) > 1) {
+        lastScrollPosition = productContainer.scrollTop;
+       
+        // May not be exactly equal on some screen sizes due to sub-pixel precision
+        if (productContainer.scrollHeight - productContainer.scrollTop <= (productContainer.clientHeight + 1)) {
+            addProducts();
+            count++;
+        }
+    }
+}
+
 function fetchProducts(uri, callback, ...args) {
+    const loader = showLoading(productContainer);
+    productContainer.removeEventListener("scroll", loadOnScrollBottom);
     const fetchPromise = fetch(uri, {
         headers: {
             "Accept": "application/json",
@@ -29,6 +43,8 @@ function fetchProducts(uri, callback, ...args) {
             return response.json();
         }
     }).then((data) => {
+        hideLoading(loader);
+        productContainer.addEventListener("scroll", loadOnScrollBottom);
         if (data != null) {
             callback(data, ...args);
         }
@@ -48,17 +64,7 @@ search_bar.addEventListener("input", function() {
     getProducts();
 });
 
-productContainer.addEventListener("scroll", function() {
-    if (productContainer.scrollTop > lastScrollPosition && (productContainer.scrollTop - lastScrollPosition) > 1) {
-        lastScrollPosition = productContainer.scrollTop;
-       
-        // May not be exactly equal on some screen sizes due to sub-pixel precision
-        if (productContainer.scrollHeight - productContainer.scrollTop <= (productContainer.clientHeight + 1)) {
-            addProducts();
-            count++;
-        }
-    }
-});
+productContainer.addEventListener("scroll", loadOnScrollBottom);
 
 sort_select.addEventListener("change", function() {
     setCookie("Sort", sort_select.value);
@@ -76,8 +82,6 @@ if (!getCookie("Sort")) {
 } else {
     sort_select.value = getCookie("Sort");
 }
-
-
  
 getProducts();
 

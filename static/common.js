@@ -216,3 +216,21 @@ export function showProducts(products, keep, callback, char, container, wishlist
 
     products.forEach(showProduct);
 }
+
+export function showLoading(container) {
+    const loadingContainer = document.createElement('div');
+    loadingContainer.id = "loading-container";
+    
+    const loadingGraphic = document.createElement('img');
+    loadingGraphic.id = "loading-wheel";
+    loadingGraphic.src = "static/loading.svg";
+
+    loadingContainer.appendChild(loadingGraphic);
+    container.appendChild(loadingContainer);
+
+    return loadingContainer;
+}
+
+export function hideLoading(loader) {
+    loader.remove();
+}

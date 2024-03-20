@@ -1,4 +1,4 @@
-import { base, init, showProducts} from './common.js';
+import { base, init, showProducts, showLoading, hideLoading} from './common.js';
 
 document.getElementById('vendor-form').addEventListener('change', loadWishlists);
 
@@ -6,6 +6,8 @@ init();
 loadWishlists();
 
 function getWishlist(wishlist, callback, ...args) {
+    const loading = showLoading(args[3]);
+
     const fetchPromise = fetch(base + 'cardlist', {
         method: "POST",
         headers: {
@@ -24,12 +26,12 @@ function getWishlist(wishlist, callback, ...args) {
         }
     }).then((data) => {
         if (data != null) {
+            hideLoading(loading);
             callback(data, ...args);
         }
     });
 }
 
-// TODO: Add a loading indicator
 function loadWishlists()  {
     const wishlists = JSON.parse(localStorage.getItem("Wishlist"));
 

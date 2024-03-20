@@ -431,3 +431,21 @@ input[type=checkbox] {
 #delete-confirmation-content {
     text-align: center;
 }
+
+#loading-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+#loading-wheel {
+    width: 100px;
+    margin: auto;
+    animation: rotation 2s infinite linear;
+    transform-origin: 50% 50%;
+}
+
+@keyframes rotation {
+    from {transform: rotate(0deg);}
+    to   {transform: rotate(359deg);}
+}
