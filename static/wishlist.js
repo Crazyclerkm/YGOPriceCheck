@@ -2,7 +2,6 @@ import { base, init, showProducts} from './common.js';
 
 document.getElementById('vendor-form').addEventListener('change', loadWishlists);
 
-
 init();
 loadWishlists();
 
@@ -37,7 +36,7 @@ function loadWishlists()  {
     const wishlistContent = document.getElementById("wishlist-content");
     wishlistContent.innerHTML = "";
 
-    for(let wishlist in wishlists) {
+    for(let i in wishlists) {
         const container = document.createElement('div');
         const header = document.createElement('div');
         const products = document.createElement('div');
@@ -47,7 +46,7 @@ function loadWishlists()  {
         products.className = "wishlist-products";
 
         const title = document.createElement('h2');
-        title.textContent = wishlist;
+        title.textContent = wishlists[i]["name"];
 
         const minimiseButton = document.createElement('img');
         const deleteButton = document.createElement('img');
@@ -76,7 +75,7 @@ function loadWishlists()  {
         }
 
         deleteButton.onclick = function() {
-            openDeleteConfirmationPopup(container, wishlist);
+            openDeleteConfirmationPopup(container, wishlists[i]["name"]);
         }
 
         editButton.onclick = function() {
@@ -94,7 +93,7 @@ function loadWishlists()  {
 
         container.appendChild(header);
 
-        getWishlist(JSON.stringify(wishlists[wishlist]), showProducts, true, removeFromWishlist, '-', products, wishlist);
+        getWishlist(JSON.stringify(wishlists[i]["items"]), showProducts, true, removeFromWishlist, '-', products, wishlists[i]["name"]);
        
         container.append(products);
         wishlistContent.appendChild(container);
@@ -113,7 +112,8 @@ function editTitle(title) {
         title.innerText = newTitle;
 
         if (newTitle !== initialTitle) {
-            delete Object.assign(wishlists, {[newTitle]: wishlists[initialTitle] })[initialTitle];
+            let wishlist = wishlists.find(element => element["name"] == initialTitle);
+            wishlist["name"] = newTitle;
             localStorage.setItem("Wishlist", JSON.stringify(wishlists));
         }
         
@@ -169,16 +169,20 @@ function closeDeleteConfirmationPopup(deleteEventListener) {
 
 function deleteWishlist(wishlistName) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
-    delete wishlists[wishlistName];
+    const wishlist = wishlists.find(element => element["name"] == wishlistName);
+
+    wishlists.splice(wishlists.indexOf(wishlist), 1);
+
     localStorage.setItem("Wishlist", JSON.stringify(wishlists));
 }
 
 function removeFromWishlist(variant_id, vendor, wishlistName, event) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
-    let wishlistItem = wishlists[wishlistName].find(element => element.variant_id == variant_id && element.vendor == vendor);
+    let wishlist = wishlists.find(element => element["name"] == wishlistName);
+    const wishlistItem = wishlist["items"].find(element => element.variant_id == variant_id && element.vendor == vendor);
 
-    const index = wishlists[wishlistName].indexOf(wishlistItem);
-    wishlists[wishlistName].splice(index, 1);
+    const index = wishlist["items"].indexOf(wishlistItem);
+    wishlist["items"].splice(index, 1);
 
     localStorage.setItem("Wishlist", JSON.stringify(wishlists));
     event.target.parentElement.remove();
