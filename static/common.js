@@ -156,8 +156,21 @@ function setVendors() {
         vendorCheckboxes.forEach((checkbox) => checkbox.checked = true);
 
     } else {
+        
         let vendors = vendorStr.split('|').filter(Boolean);
-        vendors.forEach((vendor) => document.querySelector('input[value="'+ vendor +'"]').checked = true);
+
+        vendors.forEach((vendor) => {
+            let checkbox = document.querySelector('input[value="'+ vendor +'"]');
+
+            // Set checkbox to checked if not null
+            // If null, remove from vendorStr as vendor no longer exists
+            if(checkbox != null) {
+                checkbox.checked = true
+            } else {
+                setCookie("Vendors", vendorStr.replace(vendor+'|', ''));
+            }
+
+        });
     }
 }
 
