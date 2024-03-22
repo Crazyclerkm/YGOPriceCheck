@@ -331,6 +331,9 @@ input[type=checkbox] {
         width: 95%;
     }
 
+    .product {
+        width: 90vw;
+    }
   }
 
 #wishlist-menu-header, #delete-confirmation-header {
