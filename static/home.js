@@ -116,18 +116,22 @@ function buildURI(search, index) {
     return uri;
 }
 
-function addToWishlist(variant_id, vendor, wishlistName) {
+function addToWishlist(variant_id, vendor, wishlistNames) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
     const product = {"variant_id": variant_id, "vendor": vendor};
-    let wishlist = wishlists.find(element => element["name"] == wishlistName);
 
-    if(!wishlist["items"].some(product => product.variant_id == variant_id && product.vendor == vendor)) {
-        wishlist["items"].push(product);
-        localStorage.setItem("Wishlist", JSON.stringify(wishlists));
-        showWishlistNotification(true);
-    } else {
-        showWishlistNotification(false);
+    for (let i in wishlistNames) {
+        let wishlist = wishlists.find(element => element["name"] == wishlistNames[i]);
+
+        if(!wishlist["items"].some(product => product.variant_id == variant_id && product.vendor == vendor)) {
+            wishlist["items"].push(product);
+            localStorage.setItem("Wishlist", JSON.stringify(wishlists));
+            showWishlistNotification(true);
+        } else {
+            showWishlistNotification(false);
+        }
     }
+    
 }
 
 function populateWishlists() {
@@ -139,21 +143,22 @@ function populateWishlists() {
     let initial = true;
 
     for(let i in wishlists) {
-        const wishlistRadio = document.createElement('input');
-        wishlistRadio.type = "radio";
-        wishlistRadio.id = wishlists[i]["name"] + "-radio";
-        wishlistRadio.name = "wishlist-radio"
+        const wishlistCheckbox = document.createElement('input');
+        wishlistCheckbox.type = "checkbox";
+        wishlistCheckbox.classList.add("wishlist-checkbox");
+        wishlistCheckbox.id = wishlists[i]["name"] + "-checkbox";
+        wishlistCheckbox.name = wishlists[i]["name"] + "-checkbox";
 
         const wishlistLabel = document.createElement('label');
         wishlistLabel.innerText = wishlists[i]["name"];
-        wishlistLabel.htmlFor = wishlistRadio.id;
+        wishlistLabel.htmlFor = wishlistCheckbox.id;
 
-        wishlistContent.appendChild(wishlistRadio);
+        wishlistContent.appendChild(wishlistCheckbox);
         wishlistContent.appendChild(wishlistLabel);
         wishlistContent.appendChild(document.createElement('br'));
 
         if(initial) {
-            wishlistRadio.checked = true;
+            wishlistCheckbox.checked = true;
             initial = false;
         }
     }
@@ -207,9 +212,11 @@ function openWishlistMenu(variant_id, vendor) {
     });
 
     document.getElementById('add-wishlist').addEventListener('click', function eventHandler() {
-        // Match last occurence of "-radio" in the radio button id
-        const regex = /(-radio)(?!-radio)/;
-        addToWishlist(variant_id, vendor, document.querySelector('input[name="wishlist-radio"]:checked').id.replace(regex,""));
+        // Match last occurence of "-checkbox" in the checkbox button id
+        const regex = /(-checkbox)(?!-checkbox)/;
+        let selectedWishlists = [...document.querySelectorAll('input[class="wishlist-checkbox"]:checked')].map(node => node.id.replace(regex, ""));
+        
+        addToWishlist(variant_id, vendor, selectedWishlists);
         this.removeEventListener('click', eventHandler);
         closeWishlistMenu();
     });
