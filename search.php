@@ -1,8 +1,8 @@
 <?php
-    $servername = "localhost";
-    $database = "ygoprice_YGOPriceCheck";
-    $username = "ygoprice_admin";
-    $password = "@Bt*=4tssjh]";
+    $servername = "";
+    $database = "";
+    $username = "";
+    $password = "";
     
     $conn = new mysqli($servername, $username, $password, $database);
 
