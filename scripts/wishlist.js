@@ -8,7 +8,7 @@ loadWishlists();
 function getWishlist(wishlist, callback, ...args) {
     const loading = showLoading(args[3]);
 
-    const fetchPromise = fetch(base + 'cardlist', {
+    const fetchPromise = fetch(base + 'search.php', {
         method: "POST",
         headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -58,9 +58,9 @@ function loadWishlists()  {
         deleteButton.className = "wishlist-header-button";
         editButton.className  = "wishlist-header-button";
 
-        minimiseButton.src = "static/-.svg"
-        deleteButton.src = "static/delete.svg";
-        editButton.src = "static/edit.svg";
+        minimiseButton.src = "images/-.svg"
+        deleteButton.src = "images/delete.svg";
+        editButton.src = "images/edit.svg";
 
         minimiseButton.style.height = "32px";
         deleteButton.style.height = "32px";
@@ -69,10 +69,10 @@ function loadWishlists()  {
         minimiseButton.onclick = function() {
             if(products.style.display == 'none') {
                 products.style.display = 'flex';
-                minimiseButton.src = 'static/-.svg';
+                minimiseButton.src = 'images/-.svg';
             } else {
                 products.style.display = 'none';
-                minimiseButton.src = 'static/+.svg';
+                minimiseButton.src = 'images/+.svg';
             }  
         }
 

@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-    <!-- TODO: Consider adding export/import wishlist option -->
+
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>YGO Price Check</title>
-    <link rel="stylesheet" href="static/style.css">
-    <script defer="true" type="module" src="static/wishlist.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script defer="true" type="module" src="scripts/wishlist.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+    <link rel='shortcut icon' href='favicon.ico' type='image/x-icon' />
   </head>
 
   <body>
     <div id="header">
       <div id="home">
         <a href="/">
-          <img src="static/home.png" width="50px" />
+          <img src="images/home.png" width="50px" />
         </a>
       </div>
       
       <div id="options">
         <a id="open-options-menu" href="#">
-          <img id="options-icon" src="static/cog.svg">
+          <img id="options-icon" src="images/cog.svg">
         </a>
 
         <div id="options-menu">
@@ -31,7 +32,7 @@
             <h2 id="options-heading">
               Selected Vendors:
             </h2>
-            <img id="close-options-menu" src="static/x.svg">
+            <img id="close-options-menu" src="images/x.svg">
           </div>
           <div id="options-content">
             <form id="vendor-form" >
@@ -47,17 +48,10 @@
     <div id="wishlist-content">
     </div>
 
-    <div id="changelog">
-      <div id="changelog-content">
-        <a id="close-changelog" href="javascript:void(0)">&times;</a>
-        <h1 id="changelog-title"> Changelog </h1>
-      </div>
-    </div>
-
     <div id="delete-confirmation">
       <div id="delete-confirmation-header">
         <h1 id="delete-confirmation-title"> Delete wishlist </h1>
-        <img id="close-delete-confirmation" height="25px" src="static/x.svg">
+        <img id="close-delete-confirmation" height="25px" src="images/x.svg">
         
       </div>
 

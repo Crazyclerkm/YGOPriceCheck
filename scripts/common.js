@@ -1,9 +1,8 @@
-export const base = "http://192.168.1.76:5000/";
+export const base = "https://ygopricecheck.nz/";
 
 const productContainer = document.getElementById("product-container");
 
 export function init() {
-    getVersion();
     getVendors();
 
     document.getElementById('open-options-menu').addEventListener('click', openOptionsMenu);
@@ -14,27 +13,6 @@ export function init() {
         localStorage.setItem("Wishlist", JSON.stringify(
             [{"name":"wishlist","items":[]}]
         ));
-    } else {
-        const wishlists = JSON.parse(localStorage.getItem("Wishlist"));
-
-        // Check if using old wishlist format, if so, convert it.
-        if(!Array.isArray(wishlists)) {
-            let updatedWishlists = [];
-            for(const wishlist in wishlists) {
-                let newWishlist = {};
-                newWishlist["name"] = wishlist;
-                let items = [];
-                for (const itemName in wishlists[wishlist]) {
-                    const item = wishlists[wishlist][itemName];
-                    let newItem = {"variant_id": item["variant_id"], "vendor": item["vendor"]};
-                    items.push(newItem);
-                }
-                newWishlist["items"] = items;
-                updatedWishlists.push(newWishlist);
-            }
-
-            localStorage.setItem("Wishlist", JSON.stringify(updatedWishlists));
-        }
     }
 }
 
@@ -52,53 +30,10 @@ export function getCookie(name) {
     return cookieValue;
 }
 
-function checkVersion(version) {
-    if (!getCookie("Version") || getCookie("Version") != version) {
-        setCookie("Version", version);
-        displayChangelog(version);
-    }
-}
-
-function getVersion() {
-    fetch(base + 'version')
-    .then((response) => response.text())
-    .then((text) => checkVersion(text));
-}
-
-function setChangelog(changelog) {
-    const changelogContainer = document.getElementById('changelog-content');
-    let htmlString = "<p>" ;
-    let lines = changelog.split('-').filter(Boolean);
-    for(let l in lines) {
-        htmlString += '-' + lines[l]+'<br><br>';
-    }
-    htmlString += "</p>"
-    changelogContainer.innerHTML += htmlString;
-    document.getElementById('close-changelog').addEventListener('click', closeChangelog);
-}
-
-function displayChangelog(version) {
-    const changelog = document.getElementById('changelog');
-    changelog.style.display = "inline";
-
-    const changelogTitle = document.getElementById('changelog-title');
-    changelogTitle.innerHTML += "(v" + version + ")";
-    
-    fetch(base + 'changelog')
-    .then((response) => response.text())
-    .then((text) => setChangelog(text));
-}
-
-function closeChangelog() {
-    const changelog = document.getElementById('changelog');
-    changelog.style.display = "none";
-    return false;
-}
-
 function openOptionsMenu() {
     const optionsMenu = document.getElementById('options-menu');
     optionsMenu.style.borderLeft = "1px solid #353535";
-    // TODO: Add event listener to still dynamically change size
+    
     if (window.innerWidth > 768) {
         optionsMenu.style.width = "30%";
     } else {
@@ -116,7 +51,7 @@ function closeOptionsMenu() {
 }
 
 function getVendors() {
-    fetch(base + 'vendors')
+    fetch(base + 'vendors.json')
     .then((response) => response.json())
     .then((json) => loadVendors(json));
 }
@@ -201,7 +136,7 @@ export function showProducts(products, keep, callback, char, container, wishlist
         productBox.className = "box";
         wishlistButton.className = "wishlist-button";
         
-        wishlistButton.src = "static/" + char + ".svg";
+        wishlistButton.src = "images/" + char + ".svg";
         
         productBox.innerHTML += `
         <a href="${vendorString + 'products/' + product.handle}" target="_blank">
@@ -236,7 +171,7 @@ export function showLoading(container) {
     
     const loadingGraphic = document.createElement('img');
     loadingGraphic.id = "loading-wheel";
-    loadingGraphic.src = "static/loading.svg";
+    loadingGraphic.src = "images/loading.svg";
 
     loadingContainer.appendChild(loadingGraphic);
     container.appendChild(loadingContainer);

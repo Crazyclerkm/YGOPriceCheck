@@ -1,18 +1,16 @@
 import requests
-import sqlite3
 import time
 import argparse
 import json
-import concurrent.futures
-from threading import Thread
-
+import mysql.connector
+from mysql.connector import Error
 class ShopifyScraper():
 
     def __init__(self, vendor, baseurl):
         self.vendor = vendor
         self.baseurl = baseurl
 
-    def getData(self, endpoint=None):
+    def getData(self, endpoint=None, delay=0.1):
         data = []
         page = 1
 
@@ -29,7 +27,7 @@ class ShopifyScraper():
                 data.extend(products)
 
                 page += 1
-                time.sleep(args.request_delay)
+                time.sleep(delay)
                 r = requests.get(self.baseurl + f'{endpoint}{page}', timeout=5)
         except:
             print("An error occured processing the following response from " + self.vendor + ":")
@@ -66,62 +64,77 @@ class ShopifyScraper():
                 
         return products
 
-## TODO: Create tests 
 def loadVendors(vendors_file):
     with open(vendors_file) as f:
         data = f.read()
 
     return json.loads(data)
 
-def connectDB(db_name):
-    conn = sqlite3.connect(db_name + '.db', check_same_thread=False)
+def create_server_connection(host_name, user_name, user_password, db_name=None):
+    connection = None
+    try:
+        if db_name:
+            connection = mysql.connector.connect(
+                host=host_name,
+                user=user_name,
+                passwd=user_password,
+                database=db_name
+            )
+            print("MySQL Database connection successful")
+        else:
+            connection = mysql.connector.connect(
+                    host=host_name,
+                    user=user_name,
+                    passwd=user_password
+                )
+            print("MySQL Database connection successful")
+    except Error as err:
+        print(f"Error: '{err}'")
+
+    return connection
+
+def connectDB(db_name, host, username, password, table):
+    conn = create_server_connection(host, username, password, db_name)
+
     cur = conn.cursor()
 
-    cur.execute(''' 
-                    CREATE TABLE IF NOT EXISTS Products
-                    ([variant_id] INTEGER, [id] BIGINT, [name] TEXT, [handle] TEXT, [variant_title] TEXT, [price] MONEY, [vendor] TEXT, [img_src] TEXT, CONSTRAINT PK_Product PRIMARY KEY (variant_id,vendor))
-                ''')
+    create_product_table = f"""
+            CREATE TABLE IF NOT EXISTS `{table}` (
+            `variant_id` bigint(20) NOT NULL,
+            `id` bigint(20) DEFAULT NULL,
+            `name` text DEFAULT NULL,
+            `handle` text DEFAULT NULL,
+            `variant_title` text DEFAULT NULL,
+            `price` decimal(10,2) DEFAULT NULL,
+            `vendor` varchar(255) NOT NULL,
+            `img_src` text DEFAULT NULL,
+            PRIMARY KEY (`variant_id`, `vendor`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    """
+    cur.execute(create_product_table)
     conn.commit()
-    return cur
 
-def processItemDB(item, cur):
+    return conn, cur
+
+def processItemDB(table, item, cur):
     var_id = item['variant_id']
     vendor = item['vendor']
-    key = (var_id, vendor)
 
-    cur.execute("SELECT * FROM Products WHERE variant_id=? AND vendor=?", key)
-    result = cur.fetchone()
-
-    ## If an item is not present in the database, add it if available, else update price and image if needed
-    ## If an item is present in the database and is no longer available, remove it
-    if result is None and item['available']:
-        query = "INSERT INTO Products (variant_id, id, name, handle, variant_title, price, vendor, img_src) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    if item['available']:
         image = 'none'
         if 'image' in item:
             image = item['image']
 
+        query = f"INSERT INTO `{table}` (`variant_id`, `id`, `name`, `handle`, `variant_title`, `price`, `vendor`, `img_src`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         cur.execute(query, (var_id, item['id'], item['name'], item['handle'], item['variant_title'], item['price'], vendor, image))
 
-    elif result is not None and not item['available']:
-        query = "DELETE FROM Products WHERE variant_id=? AND vendor=?"
-        cur.execute(query, key)
-
-    elif result is not None:
-        if result[5] is not item['price']:
-            query = "UPDATE Products SET price=?WHERE variant_id=? AND vendor=?"
-            cur.execute(query, (item['price'], var_id, vendor))
-
-        if 'image' in item and result[7] is not item['image']:
-            query = "UPDATE Products SET img_src=? WHERE variant_id=? AND vendor=?"
-            cur.execute(query, (item['image'], var_id, vendor))
-
-
-    cur.connection.commit()
-
-## TODO: Revise abbreviations
 def parseArguments():
     parser = argparse.ArgumentParser(description='Program to gather Yu-Gi-Oh card prices from a selection of shopify websites')
-    parser.add_argument("-db", "--db_name", help="The name of the database to create/connect to. Does not include the file extension.", default="YGOPriceCheck")
+    parser.add_argument("db", type=str, help="The name of the database to connect to")
+    parser.add_argument("host", help="Host of the database to connect to")
+    parser.add_argument("username", help="Username for the database")
+    parser.add_argument("password", help="Password for the database")
+    parser.add_argument("-tb", "--table_name", help="The name of the table to use in the database", default="Products") 
     parser.add_argument("-v", "--vendors", help="The name of the file that contains the shops to search from", default="vendors.json") 
     parser.add_argument("--products_endpoint", help="The endpoint to gather data from each of the shopify websites", default="products.json?limit=250&page=")
     parser.add_argument("-t", "--time", help="Provide timing data for how long it takes to download all of the products", action="store_true")
@@ -131,25 +144,28 @@ def parseArguments():
     return args
 
 def main(args):
-    if(args.verbose):
-        print("Downloading data...")
-
     if(args.time):
         tic = time.perf_counter()
 
-    cur = connectDB(args.db_name)
-    cur.connection.commit()
     vendors = loadVendors(args.vendors)
 
     for vendor in vendors.keys():
         scraper = ShopifyScraper(vendor, vendors[vendor])
-        items = scraper.getData(args.products_endpoint)
+
+        if(args.verbose):
+            print("Downloading data from " + vendor + "...")
+
+        items = scraper.getData(args.products_endpoint, args.request_delay)
+
+        conn, cur = connectDB(args.db, args.host, args.username, args.password, args.table_name)
 
         for item in items:
-            processItemDB(item, cur)
-    
-    cur.connection.close()
+            processItemDB(args.table_name, item, cur)
+            conn.commit()
 
+        cur.close()
+        conn.close()
+    
     if(args.time):
         toc = time.perf_counter()
         print(f"Downloaded the database in {toc - tic:0.4f} seconds")

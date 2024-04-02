@@ -45,7 +45,7 @@ function fetchProducts(uri, callback, ...args) {
     }).then((data) => {
         hideLoading(loader);
         productContainer.addEventListener("scroll", loadOnScrollBottom);
-        if (data != null) {
+        if (data !== null) {
             callback(data, ...args);
         }
     });
@@ -108,9 +108,9 @@ function buildURI(search, index) {
     let uri;
 
     if(!search.trim().length) {
-        uri = base + `Products/index=${index}&count=${12}`;
+        uri = base + `search.php?index=${index}&count=${12}`;
     } else {
-        uri = base + `Products/${search}&index=${index}&count=${12}`;
+        uri = base + `search.php?name=${search}&index=${index}&count=${12}`;
     }
 
     return uri;
@@ -139,8 +139,6 @@ function populateWishlists() {
     wishlistContent.innerHTML = "";
 
     const wishlists = JSON.parse(localStorage.getItem("Wishlist"));
-    
-    let initial = true;
 
     for(let i in wishlists) {
         const wishlistCheckbox = document.createElement('input');
@@ -156,11 +154,6 @@ function populateWishlists() {
         wishlistContent.appendChild(wishlistCheckbox);
         wishlistContent.appendChild(wishlistLabel);
         wishlistContent.appendChild(document.createElement('br'));
-
-        if(initial) {
-            wishlistCheckbox.checked = true;
-            initial = false;
-        }
     }
 }
 
