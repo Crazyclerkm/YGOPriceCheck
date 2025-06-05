@@ -27,7 +27,7 @@ jobs:
         uses: burnett01/rsync-deployments@7.0.2
         with: 
           switches: -avzr --delete
-          path: src/
+          path: dist/
           remote_path: ${{ secrets.FTP_TARGET_DIR }}
           remote_host: ygopricecheck.nz
           remote_user: ygoprice
