@@ -54,9 +54,9 @@ function SearchDisplay({searchQuery, sortOption}) {
         try {
             let response = null;
             if(query !== '') {
-                response = await fetch(`http://localhost/test/search.php?name=${query}&index=${index}&count=${count}`, {credentials: 'include'});
+                response = await fetch(`../search.php?name=${query}&index=${index}&count=${count}`, {credentials: 'include'});
             } else {
-                response = await fetch(`http://localhost/test/search.php?index=${index}&count=${count}` , {credentials: 'include'});
+                response = await fetch(`../search.php?index=${index}&count=${count}` , {credentials: 'include'});
             }
 
             const data = await response.json();
