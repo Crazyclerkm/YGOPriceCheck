@@ -1,14 +1,5 @@
 <?php
-//header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
-// add this if you need POST/PUT:
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Origin: http://127.0.0.1:5173");
-header("Access-Control-Allow-Credentials: true");
-?>
-
-<?php
-    $db_config = parse_ini_file("db.ini");
+    $db_config = parse_ini_file("/home/ygoprice/db.ini");
     
     $servername = $db_config["servername"];
     $database = $db_config["database"];
@@ -45,38 +36,30 @@ header("Access-Control-Allow-Credentials: true");
                 }
                 
             }
-            /* 
-            if ($vendors !== null && count($vendors) > 0) {
-                $conditions[] = " AND vendor IN (" . str_repeat('?,', max(0, count($vendors)-1)) . "?)";
+            
+            if ($vendors !== null) {
+                $conditions[] = " AND vendor IN (" . str_repeat('?,', count($vendors)-1) . "?)";
                 $bind_str .= str_repeat('s', count($vendors));
                 $data = array_merge($data, $vendors);
 
             }
-            */
+
             $query .= "".implode('', $conditions);
 
             $orders = array("Name","Price desc","Price asc", "Vendor");
-
-            if (isset($_COOKIE['Sort']) and $_COOKIE['Sort'] !== '') {
-                $sort = urldecode($_COOKIE['Sort']);
-
-                if (in_array($sort, $orders)) {
-                    $query .= " ORDER BY $sort";
-                }
-                //echo $sort;
-                //$query .= " ORDER BY $sort";
+            
+            if (isset($_COOKIE['Sort']) and $_COOKIE['Sort'] !== '' and in_array($_COOKIE['Sort'], $orders)) {
+                $sort = $_COOKIE['Sort'];
+                $query .= " ORDER BY $sort";
             }
 
             if (is_numeric($index) && is_numeric($count) && $index != -1 && $count != -1) {
                 $query .= " LIMIT $count OFFSET $index";
             }
             
-            $stmt = $conn->prepare($query);
 
-            if ($bind_str !== '') {
-                $stmt->bind_param($bind_str, ...$data);
-            }
-            
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param($bind_str, ...$data);
             $stmt->execute();
             
             $result = $stmt->get_result();
