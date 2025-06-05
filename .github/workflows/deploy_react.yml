@@ -1,4 +1,4 @@
-name: Deploy React App via FTP
+name: Deploy React App via SSH
 
 on:
   push:
@@ -9,28 +9,24 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
       
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          
-      - name: Install dependencies
-        run: npm install
+          cache: "npm"
+      - run: npm ci
 
       - name: Build React app
         run: npm run build
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Deploy via SSH
+        uses: SamKirkland/web-deploy@v1
         with: 
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./build/
-          server-dir: ${{ secrets.FTP_TARGET_DIR }}
-        
+          target-server: ygopricecheck.nz
+          remote-user: ygoprice
+          private-ssh-key: ${{ secrets.SSH_KEY }}
+          destination-path: ${{ secrets.FTP_TARGET_DIR }}
