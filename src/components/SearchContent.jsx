@@ -54,9 +54,9 @@ function SearchDisplay({searchQuery, sortOption}) {
         try {
             let response = null;
             if(query !== '') {
-                response = await fetch(`../search.php?name=${query}&index=${index}&count=${count}`, {credentials: 'include'});
+                response = await fetch(`https://ygopricecheck.nz//search.php?name=${query}&index=${index}&count=${count}`, {credentials: 'include'});
             } else {
-                response = await fetch(`../search.php?index=${index}&count=${count}` , {credentials: 'include'});
+                response = await fetch(`https://ygopricecheck.nz//search.php?index=${index}&count=${count}` , {credentials: 'include'});
             }
 
             const data = await response.json();
