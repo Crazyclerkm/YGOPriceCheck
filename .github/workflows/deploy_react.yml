@@ -24,9 +24,12 @@ jobs:
         run: npm run build
 
       - name: Deploy via SSH
-        uses: SamKirkland/web-deploy@v1
+        uses: burnett01/rsync-deployments@7.0.2
         with: 
-          target-server: ygopricecheck.nz
-          remote-user: ygoprice
-          private-ssh-key: ${{ secrets.SSH_KEY }}
-          destination-path: ${{ secrets.FTP_TARGET_DIR }}
+          switches: -avzr --delete
+          path: src/
+          remote_path: ${{ secrets.FTP_TARGET_DIR }}
+          remote_host: ygopricecheck.nz
+          remote_user: ygoprice
+          remote_key: ${{ secrets.SSH_KEY }}
+          remote_key_pass: ${{ secrets.FTP_PASSWORD }}
