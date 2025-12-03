@@ -23,6 +23,8 @@ function SearchDisplay({searchQuery, sortOption}) {
     const [hasMore, setHasMore] = useState(true);
     const observer = useRef();
 
+    const fallbackImg = 'https://cdn.shopify.com/s/files/1/0550/1714/4496/files/ygo_placeholder_65392c87-fded-4036-a7c8-8966a41d908b_150x.png?v=1717721440&crop=center&height=200&width=133';
+
     const lastCardRef = useCallback(
         (node) => {
             if (loading || !hasMore ) return;
@@ -97,8 +99,12 @@ function SearchDisplay({searchQuery, sortOption}) {
                             <CardMedia
                                 component="img"
                                 sx={{ width: 151, margin: 'auto' }}
-                                image={(result.img_src !== 'none') ? result.img_src + '&crop=center&height=200&width=133' : 'https://cdn.shopify.com/s/files/1/0550/1714/4496/files/ygo_placeholder_65392c87-fded-4036-a7c8-8966a41d908b_150x.png?v=1717721440'}
+                                image={result.img_src + '&crop=center&height=200&width=133'}
                                 alt={`${result.name} card image`}
+                                onError={(e) => {
+                                    e.target.onError = null;
+                                    e.target.src = fallbackImg;
+                                }}
                             />
                             <Typography component="div" variant="h5">
                                 {result.name}
