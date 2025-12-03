@@ -41,7 +41,7 @@ function SearchDisplay({searchQuery, sortOption}) {
         if (loading || !hasMore) return;
         
         setLoading(true);
-        const newResults = await fetchResults(searchQuery, pageIndex);
+        const newResults = await fetchResults(searchQuery, pageIndex * 16);
         setResults(prev => [...prev, ...newResults]);
         setLoading(false);
     };
@@ -97,7 +97,7 @@ function SearchDisplay({searchQuery, sortOption}) {
                             <CardMedia
                                 component="img"
                                 sx={{ width: 151, margin: 'auto' }}
-                                image={result.img_src}
+                                image={(result.img_src !== 'none') ? result.img_src + '&crop=center&height=200&width=133' : 'https://cdn.shopify.com/s/files/1/0550/1714/4496/files/ygo_placeholder_65392c87-fded-4036-a7c8-8966a41d908b_150x.png?v=1717721440'}
                                 alt={`${result.name} card image`}
                             />
                             <Typography component="div" variant="h5">
