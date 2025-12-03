@@ -57,9 +57,12 @@
                 $query .= " LIMIT $count OFFSET $index";
             }
             
-
             $stmt = $conn->prepare($query);
-            $stmt->bind_param($bind_str, ...$data);
+            
+            if($bind_str !== '' && count($data) > 0) {
+                $stmt->bind_param($bind_str, ...$data);
+            }
+            
             $stmt->execute();
             
             $result = $stmt->get_result();
