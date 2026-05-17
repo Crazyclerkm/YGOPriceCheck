@@ -22,5 +22,5 @@ jobs:
           remote_path: ${{ secrets.FTP_TARGET_DIR }}
           remote_host: ygopricecheck.nz
           remote_user: ygoprice
-          remote_key: ${{ secrets.SHH_KEY }}
+          remote_key: ${{ secrets.SSH_KEY }}
           remote_key_pass: ${{ secrets.FTP_PASSWORD }}
