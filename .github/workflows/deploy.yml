@@ -19,7 +19,7 @@ jobs:
         with:
           switches: -avzr --exclude='.git' --exclude='.github' --exclude='*.md' --exclude='*.py'
           path: ./
-          remote_path: ${{ secrets.FTP_TARGET_DIR }}
+          remote_path: ${{ secrets.FTP_PROD_TARGET_DIR }}
           remote_host: ygopricecheck.nz
           remote_user: ygoprice
           remote_key: ${{ secrets.SSH_KEY }}
