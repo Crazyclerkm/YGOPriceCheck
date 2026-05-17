@@ -1,0 +1,26 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Server
+        uses: burnett01/rsync-deployments@7.0.2
+        with:
+          switches: -avzr --exclude='.git' --exclude='.github' --exclude='*.md' --exclude='*.py'
+          path: ./
+          remote_path: ${{ secrets.FTP_TARGET_DIR }}
+          remote_host: ygopricecheck.nz
+          remote_user: ygoprice
+          remote_key: ${{ secrets.SHH_KEY }}
+          remote_key_pass: ${{ secrets.FTP_PASSWORD }}
