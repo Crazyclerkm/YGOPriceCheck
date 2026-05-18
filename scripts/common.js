@@ -1,4 +1,4 @@
-export const base = "https://ygopricecheck.nz/";
+export const base = window.location.hostname === 'localhost' ? `${window.location.origin}/ygopricecheck/` : 'https://ygopricecheck.nz/';
 
 const productContainer = document.getElementById("product-container");
 

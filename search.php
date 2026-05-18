@@ -1,5 +1,5 @@
 <?php
-    $db_config = parse_ini_file("/home/ygoprice/db.ini");
+    $db_config = parse_ini_file(__DIR__ . "/../db.ini");
     
     $servername = $db_config["servername"];
     $database = $db_config["database"];
