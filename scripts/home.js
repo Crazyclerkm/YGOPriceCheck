@@ -1,22 +1,22 @@
-import {base, init, setCookie, getCookie, showProducts, showLoading, hideLoading} from "./common.js";
+import { base, init, setCookie, getCookie, showProducts, showLoading, hideLoading } from "./common.js";
 
 const debounce = (mainFunction, delay) => {
     let timer;
-  
+
     // Return a function that takes in arguments and runs mainFunction after the specified delay
-    return function (...args) {
-      clearTimeout(timer);
-  
-      timer = setTimeout(() => {
-        mainFunction(...args);
-      }, delay);
+    return function(...args) {
+        clearTimeout(timer);
+
+        timer = setTimeout(() => {
+            mainFunction(...args);
+        }, delay);
     };
-  };
+};
 
 function loadOnScrollBottom() {
     if (productContainer.scrollTop > lastScrollPosition && (productContainer.scrollTop - lastScrollPosition) > 1) {
         lastScrollPosition = productContainer.scrollTop;
-       
+
         // May not be exactly equal on some screen sizes due to sub-pixel precision
         if (productContainer.scrollHeight - productContainer.scrollTop <= (productContainer.clientHeight + 1)) {
             addProducts();
@@ -25,17 +25,18 @@ function loadOnScrollBottom() {
     }
 }
 
-function fetchProducts(uri, callback, ...args) {
+function fetchProducts(uri, keep) {
     const loader = showLoading(productContainer);
     productContainer.removeEventListener("scroll", loadOnScrollBottom);
+
     const fetchPromise = fetch(uri, {
         headers: {
             "Accept": "application/json",
             Cookie: document.cookie,
         },
-        }); 
+    });
 
-    const streamPromise = fetchPromise.then((response) => {
+    fetchPromise.then((response) => {
         const contentLength = response.headers.get("Content-Length");
         if (contentLength === '0') {
             return null;
@@ -46,12 +47,24 @@ function fetchProducts(uri, callback, ...args) {
         hideLoading(loader);
         productContainer.addEventListener("scroll", loadOnScrollBottom);
         if (data !== null) {
-            callback(data, ...args);
+            showProducts(data, keep, productContainer, makeWishlistButton);
         }
     });
 }
 
 const debouncedfetchProducts = debounce(fetchProducts, 200);
+
+const makeWishlistButton = (product) => {
+    const button = document.createElement('div');
+    button.className = 'wishlist-button';
+    button.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#1f1f1f">
+                <path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/>
+            </svg>
+    `;
+    button.addEventListener('click', () => openWishlistMenu(product.variant_id, product.vendor.replaceAll("'", "\\'")));
+    return button;
+}
 
 let count = 1;
 let lastScrollPosition = 0;
@@ -82,13 +95,13 @@ if (!getCookie("Sort")) {
 } else {
     sort_select.value = getCookie("Sort");
 }
- 
+
 getProducts();
 
 function addProducts() {
     const search = document.getElementById('search-input').value;
-    const uri = buildURI(search, count*12);
-    debouncedfetchProducts(uri, showProducts, true, openWishlistMenu, '+');
+    const uri = buildURI(search, count * 12);
+    debouncedfetchProducts(uri, true);
 }
 
 function resetProducts() {
@@ -101,13 +114,13 @@ function resetProducts() {
 function getProducts() {
     const search = document.getElementById('search-input').value;
     const uri = buildURI(search, 0);
-    debouncedfetchProducts(uri, showProducts, false, openWishlistMenu, '+');
+    debouncedfetchProducts(uri, false);
 }
 
 function buildURI(search, index) {
     let uri;
 
-    if(!search.trim().length) {
+    if (!search.trim().length) {
         uri = base + `search.php?index=${index}&count=${12}`;
     } else {
         uri = base + `search.php?name=${search}&index=${index}&count=${12}`;
@@ -118,12 +131,12 @@ function buildURI(search, index) {
 
 function addToWishlist(variant_id, vendor, wishlistNames) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
-    const product = {"variant_id": variant_id, "vendor": vendor};
+    const product = { "variant_id": variant_id, "vendor": vendor };
 
     for (let i in wishlistNames) {
         let wishlist = wishlists.find(element => element["name"] == wishlistNames[i]);
 
-        if(!wishlist["items"].some(product => product.variant_id == variant_id && product.vendor == vendor)) {
+        if (!wishlist["items"].some(product => product.variant_id == variant_id && product.vendor == vendor)) {
             wishlist["items"].push(product);
             localStorage.setItem("Wishlist", JSON.stringify(wishlists));
             showWishlistNotification(true);
@@ -131,7 +144,7 @@ function addToWishlist(variant_id, vendor, wishlistNames) {
             showWishlistNotification(false);
         }
     }
-    
+
 }
 
 function populateWishlists() {
@@ -140,7 +153,7 @@ function populateWishlists() {
 
     const wishlists = JSON.parse(localStorage.getItem("Wishlist"));
 
-    for(let i in wishlists) {
+    for (let i in wishlists) {
         const wishlistCheckbox = document.createElement('input');
         wishlistCheckbox.type = "checkbox";
         wishlistCheckbox.classList.add("wishlist-checkbox");
@@ -160,9 +173,9 @@ function populateWishlists() {
 function addNewWishlist(wishlistName) {
     let wishlists = JSON.parse(localStorage.getItem("Wishlist"));
 
-    if(!wishlistName || wishlists.some(element => element["name"] == wishlistName )) return false;
+    if (!wishlistName || wishlists.some(element => element["name"] == wishlistName)) return false;
 
-    wishlists.push({"name":wishlistName,"items":[]});
+    wishlists.push({ "name": wishlistName, "items": [] });
     localStorage.setItem("Wishlist", JSON.stringify(wishlists));
 
     return true;
@@ -189,10 +202,10 @@ function openWishlistMenu(variant_id, vendor) {
 
         const submitButtom = document.getElementById("new-wishlist-submit");
 
-        submitButtom.addEventListener('click', function eventHandler(){
+        submitButtom.addEventListener('click', function eventHandler() {
             const wishlistInput = document.getElementById("new-wishlist-input");
 
-            if(addNewWishlist(wishlistInput.value)) {
+            if (addNewWishlist(wishlistInput.value)) {
                 wishlistInput.style.borderColor = "black";
                 wishlistInput.value = "";
                 wishlistForm.style.display = "none";
@@ -208,7 +221,7 @@ function openWishlistMenu(variant_id, vendor) {
         // Match last occurence of "-checkbox" in the checkbox button id
         const regex = /(-checkbox)(?!-checkbox)/;
         let selectedWishlists = [...document.querySelectorAll('input[class="wishlist-checkbox"]:checked')].map(node => node.id.replace(regex, ""));
-        
+
         addToWishlist(variant_id, vendor, selectedWishlists);
         this.removeEventListener('click', eventHandler);
         closeWishlistMenu();
@@ -234,11 +247,11 @@ function closeWishlistMenu() {
 
 function showWishlistNotification(added) {
     const wishlistNotification = document.getElementById('wishlist-notification');
-    
+
     wishlistNotification.style.width = "15%";
     wishlistNotification.style.minWidth = "150px";
 
-    if(added) {
+    if (added) {
         wishlistNotification.style.backgroundColor = "green";
         wishlistNotification.innerHTML = "<p>Added to wishlist<p>"
     } else {

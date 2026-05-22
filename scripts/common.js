@@ -11,7 +11,7 @@ export function init() {
 
     if (!localStorage.getItem("Wishlist")) {
         localStorage.setItem("Wishlist", JSON.stringify(
-            [{"name":"wishlist","items":[]}]
+            [{ "name": "wishlist", "items": [] }]
         ));
     }
 }
@@ -33,13 +33,13 @@ export function getCookie(name) {
 function openOptionsMenu() {
     const optionsMenu = document.getElementById('options-menu');
     optionsMenu.style.borderLeft = "1px solid #353535";
-    
+
     if (window.innerWidth > 768) {
         optionsMenu.style.width = "30%";
     } else {
         optionsMenu.style.width = "100%";
     }
-    
+
     return false;
 }
 
@@ -52,8 +52,8 @@ function closeOptionsMenu() {
 
 function getVendors() {
     fetch(base + 'vendors.json')
-    .then((response) => response.json())
-    .then((json) => loadVendors(json));
+        .then((response) => response.json())
+        .then((json) => loadVendors(json));
 }
 
 function loadVendors(json) {
@@ -91,18 +91,18 @@ function setVendors() {
         vendorCheckboxes.forEach((checkbox) => checkbox.checked = true);
 
     } else {
-        
+
         let vendors = vendorStr.split('|').filter(Boolean);
 
         vendors.forEach((vendor) => {
-            let checkbox = document.querySelector('input[value="'+ vendor +'"]');
+            let checkbox = document.querySelector('input[value="' + vendor + '"]');
 
             // Set checkbox to checked if not null
             // If null, remove from vendorStr as vendor no longer exists
-            if(checkbox != null) {
+            if (checkbox != null) {
                 checkbox.checked = true
             } else {
-                setCookie("Vendors", vendorStr.replace(vendor+'|', ''));
+                setCookie("Vendors", vendorStr.replace(vendor + '|', ''));
             }
 
         });
@@ -118,36 +118,32 @@ function updateVendors() {
     setCookie("Vendors", cookieStr);
 }
 
-export function showProducts(products, keep, callback, char, container, wishlist) {
-    if(!container) container = productContainer;
+export function showProducts(products, keep, container, makeButton) {
+    if (!container) container = productContainer;
 
-    if(!keep) container.innerHTML = "";
+    if (!keep) container.innerHTML = "";
 
     const showProduct = (product) => {
         let img_src = "";
         let vendors = JSON.parse(localStorage.getItem("Vendors"));
         let vendorString = vendors[product.vendor];
-        
-        if (product.img_src != "none") img_src = product.img_src;
-            
-        var productBox = document.createElement('div');
-        var wishlistButton = document.createElement('img');
 
+        if (product.img_src != "none") img_src = product.img_src;
+
+        var productBox = document.createElement('div');
         productBox.className = "box";
-        wishlistButton.className = "wishlist-button";
-        
-        wishlistButton.src = "images/" + char + ".svg";
-        
         productBox.innerHTML += `
         <a href="${vendorString + 'products/' + product.handle}" target="_blank">
             <div class="product">
-                <img class="product-image" src="${img_src}"/>
+                <div class="product-image-wrapper">
+                    <img class="product-image" src="${img_src}"/>
+                </div>
                 <div class="product-text">
                     <div class="product-name">${product.name}</div>
+                    <div class="product-variant">${product.variant_title}</div>
                     <div class="product-description">
-                        <b>${product.variant_title}</b> | ${product.vendor}
-                        <br>
-                        <strong>$ ${parseFloat(product.price).toFixed(2)}</strong>
+                        <div class="product-price">$ ${parseFloat(product.price).toFixed(2)}</div>
+                        <div class="product-vendor">${product.vendor}</div>
                     </div>
                 </div>
             </div>
@@ -155,11 +151,8 @@ export function showProducts(products, keep, callback, char, container, wishlist
         `;
 
         container.appendChild(productBox);
-        productBox.appendChild(wishlistButton);
-
-        wishlistButton.addEventListener('click', function(event) {
-            callback(product.variant_id, product.vendor.replaceAll("'", "\\'"), wishlist, event);
-        });
+        const button = makeButton(product);
+        productBox.appendChild(button);
     }
 
     products.forEach(showProduct);
@@ -168,7 +161,7 @@ export function showProducts(products, keep, callback, char, container, wishlist
 export function showLoading(container) {
     const loadingContainer = document.createElement('div');
     loadingContainer.id = "loading-container";
-    
+
     const loadingGraphic = document.createElement('img');
     loadingGraphic.id = "loading-wheel";
     loadingGraphic.src = "images/loading.svg";
