@@ -1,3 +1,8 @@
+:root {
+    --font-size-primary: 16px;
+    --font-size-secondary: 13px;
+}
+
 html {
     font-family: 'Open Sans', sans-serif;
     background-color: #555;
@@ -29,19 +34,19 @@ a {
     top: 0;
     background-color: #888;
     right: 0;
-    overflow-x: hidden; 
+    overflow-x: hidden;
     transition: 0.5s;
     white-space: nowrap;
 }
 
 #options-content {
-    font-size: 20px; 
+    font-size: 20px;
     margin-left: 10px;
 }
 
 #options-header {
     display: flex;
-    justify-content: space-between;    
+    justify-content: space-between;
 }
 
 #close-options-menu {
@@ -72,40 +77,77 @@ a {
     max-width: 96vw;
     max-height: 85vh;
     margin: 0 auto;
- 
+
 }
 
 .product {
     background-color: rgb(196, 195, 195);
     text-align: center;
     width: 400px;
-    height: 310px;
-    border: 2px solid #ccc;
+    height: 325px;
+    border: 2px solid darkgrey;
     margin: 5px;
-    border-radius: 5px;
-    border-radius: .75rem;
+    border-radius: 10px;
     position: relative;
-    box-shadow: 7px 7px 4px -1px rgba(0,0,0,0.69);
-    -webkit-box-shadow: 7px 7px 4px -1px rgba(0,0,0,0.69);
-    -moz-box-shadow: 7px 7px 4px -1px rgba(0,0,0,0.69);
+    box-shadow: 7px 7px 4px -1px rgba(0, 0, 0, 0.69);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .product .product-image {
     height: 200px;
     width: 133px;
+    object-fit: contain;
+    transition: transform 0.2s;
 }
 
 .product-name {
+    line-height: 1.3;
+    font-size: var(--font-size-primary);
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+.product-variant,
+.product-vendor {
+    font-size: var(--font-size-secondary);
+    font-weight: 300;
+}
+
+.product-description {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-text {
+    padding: 8px;
+    background-color: #A9A9A9;
+    flex: 1;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+}
+
+.product-price {
     font-weight: bold;
 }
 
 .box {
     position: relative;
+    height: fit-content;
 }
 
 .box:hover .product-image {
-    height: 220px;
-    width: 146.3px;
+    transform: scale(1.05);
 }
 
 #search {
@@ -116,7 +158,6 @@ a {
     border: 2px solid #ccc;
     border-radius: 7px;
     font-size: 16px;
-    background-color: white;
     -webkit-transition: 0.5s;
     transition: 0.5s;
     outline: none;
@@ -164,14 +205,15 @@ a {
     cursor: pointer;
     border-radius: 8px;
     border: none;
-    text-align-last:center;
+    text-align-last: center;
     min-width: 90px;
     font-size: 16px;
 }
 
-#sort-select:focus, #sort-select:target {
-    border:0px;
-    outline:0px;
+#sort-select:focus,
+#sort-select:target {
+    border: 0px;
+    outline: 0px;
 }
 
 #search-form {
@@ -183,33 +225,43 @@ input[type=checkbox] {
     height: 16px;
 }
 
-#home {
-    width: 30%;
+.wishlist-button,
+.wishlist-remove-button {
+    padding: 8px 12px;
+    text-align: right;
+    margin: 0;
+    position: absolute;
+    right: 3%;
+    z-index: 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    transition: box-shadow 0s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.wishlist-button:hover,
+.wishlist-remove-button:hover {
+    background-color: #969696;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.wishlist-button:active,
+.wishlist-remove-button:active {
+    box-shadow: 0.5px 1px 2px black;
 }
 
 .wishlist-button {
-    width: 25px;
-    text-align: right;
-    margin: 0;
-    padding: 15px;
-    position: absolute;
-    top: 2.5%;
-    right: 2.5%;
-    font-size: 42px;
-    z-index: 1;
+    bottom: 3.5%;
+    background: #C4C4C4;
 }
 
-.wishlist-button:hover {
-    color: #555;
-    font-size: 46px;
-    width: 30px;
-    right: 2%;
-    top: 2%;
-    cursor: pointer;
-}
-
-.wishlist-button:active {
-    text-shadow: 0.5px 1px 2px black;
+.wishlist-remove-button {
+    top: 3.5%;
+    background: #a8a5a0;
 }
 
 #wishlist-notification {
@@ -220,7 +272,7 @@ input[type=checkbox] {
     bottom: 2vw;
     background-color: green;
     right: 0vw;
-    overflow-x: hidden; 
+    overflow-x: hidden;
     transition: 0.3s;
     white-space: nowrap;
     text-align: center;
@@ -237,16 +289,14 @@ input[type=checkbox] {
     width: 100%;
     height: 100%;
     position: fixed;
-    overflow: auto;
     z-index: 1;
     top: 0;
     left: 0;
-    background-color: rgb(0,0,0); 
-    background-color: rgba(0,0,0,0.4); 
+    background-color: rgba(0, 0, 0, 0.4);
     overflow: hidden;
 }
 
-#wishlist-menu > * {
+#wishlist-menu>* {
     background-color: #fefefe;
     margin: 0 auto 0 auto;
     width: 30%;
@@ -258,16 +308,15 @@ input[type=checkbox] {
     width: 100%;
     height: 100%;
     position: fixed;
-    overflow: auto;
     z-index: 1;
     top: 0;
     left: 0;
-    background-color: rgb(0,0,0); 
-    background-color: rgba(0,0,0,0.4); 
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
     overflow: hidden;
 }
 
-#delete-confirmation > * {
+#delete-confirmation>* {
     background-color: #fefefe;
     margin: 0 auto 0 auto;
     width: 30%;
@@ -275,12 +324,12 @@ input[type=checkbox] {
 }
 
 @media only screen and (max-width: 768px) {
-    #wishlist-menu > *{
+    #wishlist-menu>* {
         width: 80%;
         min-width: 80%;
     }
 
-    #delete-confirmation > *  {
+    #delete-confirmation>* {
         width: 90%;
         min-width: 90%;
     }
@@ -292,34 +341,41 @@ input[type=checkbox] {
     .product {
         width: 90vw;
     }
-  }
+}
 
-#wishlist-menu-header, #delete-confirmation-header {
+#wishlist-menu-header,
+#delete-confirmation-header {
     display: flex;
     justify-content: space-around;
     margin-top: 8%;
     background-color: #c0b9b9;
 }
 
-#wishlist-menu-content, #delete-confirmation-content {
+#wishlist-menu-content,
+#delete-confirmation-content {
     padding: 10px 0;
 }
 
-#wishlist-menu-footer, #delete-confirmation-footer {
+#wishlist-menu-footer,
+#delete-confirmation-footer {
     padding-bottom: 10px;
 }
 
-#wishlist-menu-title, #delete-confirmation-title {
+#wishlist-menu-title,
+#delete-confirmation-title {
     margin: 10px;
     align-self: center;
 }
 
-#close-wishlist-menu, .wishlist-minimise, #close-delete-confirmation {
+#close-wishlist-menu,
+.wishlist-minimise,
+#close-delete-confirmation {
     align-self: center;
     margin: 10px;
 }
 
-#close-wishlist-menu:hover, #close-delete-confirmation:hover {
+#close-wishlist-menu:hover,
+#close-delete-confirmation:hover {
     cursor: pointer;
 }
 
@@ -369,7 +425,8 @@ input[type=checkbox] {
     cursor: pointer;
 }
 
-.wishlist-menu-footer-button, .delete-confirmation-footer-button {
+.wishlist-menu-footer-button,
+.delete-confirmation-footer-button {
     background-color: #9c9a9a;
     border: none;
     color: white;
@@ -380,9 +437,10 @@ input[type=checkbox] {
     font-size: 16px;
 }
 
-.wishlist-menu-footer-button:hover, .delete-confirmation-footer-button:hover {
+.wishlist-menu-footer-button:hover,
+.delete-confirmation-footer-button:hover {
     cursor: pointer;
-    box-shadow: 5px 3px 13px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+    box-shadow: 5px 3px 13px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
 }
 
 #delete-wishlist {
@@ -407,6 +465,11 @@ input[type=checkbox] {
 }
 
 @keyframes rotation {
-    from {transform: rotate(0deg);}
-    to   {transform: rotate(359deg);}
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(359deg);
+    }
 }
