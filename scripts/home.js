@@ -13,21 +13,10 @@ const debounce = (mainFunction, delay) => {
     };
 };
 
-function loadOnScrollBottom() {
-    if (productContainer.scrollTop > lastScrollPosition && (productContainer.scrollTop - lastScrollPosition) > 1) {
-        lastScrollPosition = productContainer.scrollTop;
-
-        // May not be exactly equal on some screen sizes due to sub-pixel precision
-        if (productContainer.scrollHeight - productContainer.scrollTop <= (productContainer.clientHeight + 1)) {
-            addProducts();
-            count++;
-        }
-    }
-}
-
 function fetchProducts(uri, keep) {
+    isFetching = true;
     const loader = showLoading(productContainer);
-    productContainer.removeEventListener("scroll", loadOnScrollBottom);
+    observer.disconnect();
 
     const fetchPromise = fetch(uri, {
         headers: {
@@ -45,10 +34,17 @@ function fetchProducts(uri, keep) {
         }
     }).then((data) => {
         hideLoading(loader);
-        productContainer.addEventListener("scroll", loadOnScrollBottom);
-        if (data !== null) {
+        isFetching = false;
+        if (data !== null && data.length > 0) {
             showProducts(data, keep, productContainer, makeWishlistButton);
+            productContainer.appendChild(sentinel);
+            observer.observe(sentinel);
+        } else {
+            observer.disconnect();
         }
+    }).catch(() => {
+        hideLoading(loader);
+        isFetching = false;
     });
 }
 
@@ -67,17 +63,33 @@ const makeWishlistButton = (product) => {
 }
 
 let count = 1;
-let lastScrollPosition = 0;
 const search_bar = document.getElementById('search-input');
 const productContainer = document.getElementById("product-container");
-const sort_select = document.getElementById('sort-select')
+const sort_select = document.getElementById('sort-select');
+
+const sentinel = document.createElement('div');
+sentinel.id = 'scroll-sentinel';
+productContainer.appendChild(sentinel);
+
+let isFetching = false;
+
+const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !isFetching) {
+        addProducts();
+        count++;
+    }
+}, {
+    root: productContainer,
+    rootMargin: '0px 0px 500px 0px',
+    threshold: 0
+});
 
 search_bar.addEventListener("input", function() {
     resetProducts();
     getProducts();
 });
 
-productContainer.addEventListener("scroll", loadOnScrollBottom);
+observer.observe(sentinel);
 
 sort_select.addEventListener("change", function() {
     setCookie("Sort", sort_select.value);
@@ -106,9 +118,10 @@ function addProducts() {
 
 function resetProducts() {
     count = 1;
-    lastScrollPosition = 0;
+    observer.disconnect();
     productContainer.scrollTo(0, 0);
     productContainer.innerHTML = "";
+    productContainer.appendChild(sentinel);
 }
 
 function getProducts() {
@@ -227,9 +240,8 @@ function openWishlistMenu(variant_id, vendor) {
         closeWishlistMenu();
     });
 
-    // Allow escape key to close the wishlist menu
     window.onkeydown = function(event) {
-        if (event.which == 27) closeWishlistMenu();
+        if (event.key == 'Escape') closeWishlistMenu();
         window.onkeydown = null;
     }
 }
