@@ -62,7 +62,7 @@ const makeWishlistButton = (product) => {
     return button;
 }
 
-let count = 1;
+let count = 0;
 const search_bar = document.getElementById('search-input');
 const productContainer = document.getElementById("product-container");
 const sort_select = document.getElementById('sort-select');
@@ -107,8 +107,6 @@ if (!getCookie("Sort")) {
 } else {
     sort_select.value = getCookie("Sort");
 }
-
-getProducts();
 
 function addProducts() {
     const search = document.getElementById('search-input').value;

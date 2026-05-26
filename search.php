@@ -46,11 +46,18 @@
 
             $query .= "".implode('', $conditions);
 
-            $orders = array("Name","Price desc","Price asc", "Vendor");
+            //$orders = array("Name","Price desc","Price asc", "Vendor");
+            $order_map = [
+                'Name' => 'name ASC, vendor ASC',
+                'Price desc' => 'price DESC, vendor ASC, name ASC',
+                'Price asc' => 'price ASC, vendor ASC, name ASC',
+                'Vendor' => 'vendor ASC, name ASC'
+            ];
             
-            if (isset($_COOKIE['Sort']) and $_COOKIE['Sort'] !== '' and in_array($_COOKIE['Sort'], $orders)) {
-                $sort = $_COOKIE['Sort'];
-                $query .= " ORDER BY $sort";
+            if (isset($_COOKIE['Sort']) and isset($order_map[$_COOKIE['Sort']])) {
+                $query .= " ORDER BY " . $order_map[$_COOKIE['Sort']];
+            } else {
+                $query .= " ORDER BY name ASC, vendor ASC";
             }
 
             if (is_numeric($index) && is_numeric($count) && $index != -1 && $count != -1) {
