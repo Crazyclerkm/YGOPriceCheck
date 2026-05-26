@@ -124,7 +124,7 @@ export function showProducts(products, keep, container, makeButton) {
     if (!keep) container.innerHTML = "";
 
     const showProduct = (product) => {
-        let img_src = "";
+        let img_src = "images/placeholder.webp";
         let vendors = JSON.parse(localStorage.getItem("Vendors"));
         let vendorString = vendors[product.vendor];
 
